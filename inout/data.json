@@ -1,0 +1,21 @@
+{
+  "input":{
+    "process":{
+      "id":"100"
+    },
+    "operations":{
+      "exposure_time":[
+        {
+          "band":"g",
+          "value":"0.55",
+          "name":"exposure_time_i"
+        },
+        {
+          "band":"r",
+          "value":"0.66",
+          "name":"exposure_time_r"
+        }
+      ]
+    }
+  }
+}

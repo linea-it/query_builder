@@ -7,10 +7,11 @@ import os
 import sys
 
 # PYTHONPATH=<base_project_dir> python file.py
+from utils import db_connection
 import settings
 
 
-eng = create_engine(settings.str_connection(settings.DATABASE))
+eng = create_engine(db_connection.DbConnection().str_connection())
 with eng.connect() as con:
     meta = MetaData(eng)
 

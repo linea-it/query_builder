@@ -2,7 +2,7 @@ from sqlalchemy.sql import select
 from sqlalchemy import (create_engine, Table, MetaData)
 from sqlalchemy.sql.expression import literal_column
 
-import settings
+from utils import db_connection
 from inout import input_settings
 from model import sql_operations as op
 
@@ -14,7 +14,7 @@ class ExposureTime():
         # load related tables and verify your existence.
         self._table_to_load = 'map_table'
 
-        eng = create_engine(settings.str_connection(settings.DATABASE))
+        eng = create_engine(db_connection.DbConnection().str_connection())
         with eng.connect() as con:
             meta = MetaData(eng)
             table = Table(self._table_to_load, meta, autoload=True)
@@ -31,7 +31,7 @@ class ExposureTime():
         return (str(self._stm))
 
     def create(self):
-        eng = create_engine(settings.str_connection(settings.DATABASE))
+        eng = create_engine(db_connection.DbConnection().str_connection())
         with eng.connect() as con:
             con.execute("commit")
             con.execute(op.CreateTableAs(self.save_at(), self._stm))

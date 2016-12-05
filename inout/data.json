@@ -8,12 +8,36 @@
         {
           "band":"g",
           "value":"0.55",
+          "type":"float",
           "name":"exposure_time_i"
         },
         {
           "band":"r",
           "value":"0.66",
+          "type":"float",
           "name":"exposure_time_r"
+        }
+      ],
+      "bad_regions":[
+        {
+          "value":"1",
+          "type":"integer",
+          "name":"Regions with bad astrometric colors"
+        },
+        {
+          "value":"32",
+          "type":"integer",
+          "name":"Yale Bright Star region"
+        },
+        {
+          "value":"64",
+          "type":"integer",
+          "name":"High density of crazy colors"
+        },
+        {
+          "value":"128",
+          "type":"integer",
+          "name":"Globular Cluster (William et al. 2010)"
         }
       ]
     }

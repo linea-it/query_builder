@@ -11,29 +11,75 @@ from utils import db_connection
 import settings
 
 
-eng = create_engine(db_connection.DbConnection().str_connection())
-with eng.connect() as con:
-    meta = MetaData(eng)
+class CreateTables():
+    def __init__(self):
+        self._eng = create_engine(db_connection.DbConnection().str_connection())
+        self._con = self._eng.connect()
+        self._meta = MetaData(self._eng)
 
-    map_table = Table('map_table', meta,
+    def _template_create(self, table, data):
+        CreateTable(table)
+        self._meta.create_all(self._eng)
+
+        self._con.execute(table.insert(), data)
+
+    def systematic_maps(self):
+        map_table = Table('systematic_map', self._meta,
+                          Column('pixel', Integer, primary_key=True),
+                          Column('signal', Float),
+                          Column('ra', Float),
+                          Column('dec', Float))
+
+        data = ({"pixel": 1, "signal": 0.1, "ra": 100.1, "dec": 200.1},
+                {"pixel": 2, "signal": 0.2, "ra": 100.2, "dec": 200.2},
+                {"pixel": 3, "signal": 0.3, "ra": 100.3, "dec": 200.3},
+                {"pixel": 4, "signal": 0.4, "ra": 100.4, "dec": 200.4},
+                {"pixel": 5, "signal": 0.5, "ra": 100.5, "dec": 200.5},
+                {"pixel": 6, "signal": 0.6, "ra": 100.6, "dec": 200.6},
+                {"pixel": 7, "signal": 0.7, "ra": 100.7, "dec": 200.7},
+                {"pixel": 8, "signal": 0.8, "ra": 100.8, "dec": 200.8},
+                {"pixel": 9, "signal": 0.9, "ra": 100.9, "dec": 200.9},
+                {"pixel": 10, "signal": 1.0, "ra": 101.0, "dec": 201.0},
+                {"pixel": 11, "signal": 1.1, "ra": 101.1, "dec": 201.1})
+
+        self._template_create(map_table, data)
+
+    def bad_regions(self):
+        table = Table('bad_regions_map', self._meta,
                       Column('pixel', Integer, primary_key=True),
-                      Column('signal', Float),
+                      Column('signal', Integer),
                       Column('ra', Float),
                       Column('dec', Float))
 
-    CreateTable(map_table)
-    meta.create_all(eng)
+        data = ({"pixel": 1, "signal": 1, "ra": 100.1, "dec": 200.1},
+                {"pixel": 2, "signal": 2, "ra": 100.2, "dec": 200.2},
+                {"pixel": 3, "signal": 4, "ra": 100.3, "dec": 200.3},
+                {"pixel": 4, "signal": 8, "ra": 100.4, "dec": 200.4},
+                {"pixel": 5, "signal": 16, "ra": 100.5, "dec": 200.5},
+                {"pixel": 6, "signal": 32, "ra": 100.6, "dec": 200.6},
+                {"pixel": 7, "signal": 64, "ra": 100.7, "dec": 200.7},
+                {"pixel": 8, "signal": 128, "ra": 100.8, "dec": 200.8},
+                {"pixel": 9, "signal": 255, "ra": 100.9, "dec": 200.9},
+                {"pixel": 10, "signal": 0, "ra": 101.0, "dec": 201.0},
+                {"pixel": 11, "signal": 10, "ra": 101.1, "dec": 201.1},
+                {"pixel": 12, "signal": 63, "ra": 101.2, "dec": 201.2})
 
-    data = ({"pixel": 1, "signal": 0.1, "ra": 100.1, "dec": 200.1},
-            {"pixel": 2, "signal": 0.2, "ra": 100.2, "dec": 200.2},
-            {"pixel": 3, "signal": 0.3, "ra": 100.3, "dec": 200.3},
-            {"pixel": 4, "signal": 0.4, "ra": 100.4, "dec": 200.4},
-            {"pixel": 5, "signal": 0.5, "ra": 100.5, "dec": 200.5},
-            {"pixel": 6, "signal": 0.6, "ra": 100.6, "dec": 200.6},
-            {"pixel": 7, "signal": 0.7, "ra": 100.7, "dec": 200.7},
-            {"pixel": 8, "signal": 0.8, "ra": 100.8, "dec": 200.8},
-            {"pixel": 9, "signal": 0.9, "ra": 100.9, "dec": 200.9},
-            {"pixel": 10, "signal": 1.0, "ra": 101.0, "dec": 201.0},
-            {"pixel": 11, "signal": 1.1, "ra": 101.1, "dec": 201.1})
+        self._template_create(table, data)
 
-    con.execute(map_table.insert(), data)
+    def create_all_tables(self):
+        create_tables = CreateTables()
+        print ("Creating systematic maps")
+        create_tables.systematic_maps()
+        print ("Creating bad region maps")
+        create_tables.bad_regions()
+
+    def delete_all_tables(self):
+        self._meta.drop_all(self._eng)
+
+
+if __name__ == '__main__':
+    create_tables = CreateTables()
+    print ("Creating systematic maps")
+    create_tables.systematic_maps()
+    print ("Creating bad region maps")
+    create_tables.bad_regions()

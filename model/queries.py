@@ -12,7 +12,7 @@ class ExposureTime():
 
     def __init__(self, element):
         # load related tables and verify your existence.
-        self._table_to_load = 'map_table'
+        self._table_to_load = 'systematic_map'
 
         eng = create_engine(db_connection.DbConnection().str_connection())
         with eng.connect() as con:
@@ -38,3 +38,42 @@ class ExposureTime():
 
     def save_at(self):
         return ExposureTime.OP + "_" + input_settings.PROCESS['id']
+
+
+class BadRegions():
+    OP = 'bad_regions'
+
+    def __init__(self):
+        # load related tables and verify your existence.
+        self._table_to_load = 'bad_regions_map'
+
+        mask = 0
+        for element in input_settings.OPERATIONS['bad_regions']:
+            mask += int(element['value'])
+
+        print ('Mask = %d' % mask)
+
+        eng = create_engine(db_connection.DbConnection().str_connection())
+        with eng.connect() as con:
+            meta = MetaData(eng)
+            table = Table(self._table_to_load, meta, autoload=True)
+
+            self._stm = select(
+              [
+                table.c.pixel,
+                table.c.signal,
+                table.c.ra,
+                table.c.dec
+              ]).where(op.BitwiseAnd(table.c.signal, mask) > 0)
+
+    def query(self):
+        return (str(self._stm))
+
+    def create(self):
+        eng = create_engine(db_connection.DbConnection().str_connection())
+        with eng.connect() as con:
+            con.execute("commit")
+            con.execute(op.CreateTableAs(self.save_at(), self._stm))
+
+    def save_at(self):
+        return BadRegions.OP + "_" + input_settings.PROCESS['id']

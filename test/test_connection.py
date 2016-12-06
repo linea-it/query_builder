@@ -1,45 +1,26 @@
 import unittest
 from mock import patch, Mock
 
-from utils import db_connection
+from utils.db import dal, str_connection
+import test.db.create_tables as ct
+
+from model import queries
 
 
-class test_db_connection(unittest.TestCase):
-    def setUp(self):
-        self.con = db_connection.DbConnection()
+class test_db(unittest.TestCase):
+    dal.db_init(str_connection())
+    ct.create_all_tables()
+    dal.load_tables()
+    print(dal.tables)
 
-    def test_db_successfully_conection(self):
-        self.assertTrue(self.con.is_connection_available())
+    def test_systematic_maps(self):
+        element = {'band': 'g', 'value': '0.55', 'name': 'exposure_time_i'}
+        exp_time = queries.ExposureTime(element)
+        exp_time.create()
 
-    # def test_db_disconected(self):
-    #     self.assertTrue(self.con.is_connection_available())
-
-    @patch.object(db_connection.DbConnection, "_load_settings",
-                  return_value={
-                    'dialects': 'postgresql',
-                    'driv': 'psycopg2',
-                    'password': 'tet123456'
-                  })
-    def test_invalid_input_format(self, mock_input):
-        self.con = db_connection.DbConnection()
-        self.assertRaises(KeyError, lambda: self.con.str_connection())
-
-    @patch.object(db_connection.DbConnection, "_load_settings",
-                  return_value={
-                    'dialect': 'postgresql',
-                    'driver': 'psycopg2',
-                    'username': 'lucasdpn',
-                    'password': 'tet123456',
-                    'host': 'localhost',
-                    'port': '5432',
-                    'database': 'db_sql_alchemy'
-                  })
-    def test_valid_input_format(self, mock_input):
-        self.con = db_connection.DbConnection()
-        self.assertEqual(
-            self.con.str_connection(),
-            ("postgresql+psycopg2://"
-             "lucasdpn:tet123456@localhost:5432/db_sql_alchemy"))
+    def test_bad_regions(self):
+        bad_regions = queries.BadRegions()
+        bad_regions.create()
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,9 +1,10 @@
-from sqlalchemy import Integer
+from sqlalchemy import Integer, func
 from sqlalchemy.sql.expression import bindparam, ClauseElement, Executable
 from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.sql.elements import ColumnElement, Visitable, Grouping
 from sqlalchemy.sql.operators import custom_op, is_precedent
 from sqlalchemy.dialects import oracle
+from sqlalchemy.sql.expression import literal_column
 
 
 class BitwiseAnd(ColumnElement):
@@ -34,8 +35,7 @@ def _compile_bitwise_and(element, compiler, **kwargs):
 
 @compiles(BitwiseAnd, "oracle")
 def _compile_bitwise_and_oracle(element, compiler, **kwargs):
-    return str("BitAnd(" + str(element.left) + ", " + str(element.right) + ")")
-    # return compiler.process(func.BITAND(element.left, element.right))
+    return compiler.process(func.BITAND(element.left, element.right))
 
 
 class CreateTableAs(Executable, ClauseElement):

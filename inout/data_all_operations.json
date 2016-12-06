@@ -1,0 +1,65 @@
+{
+  "input":{
+    "process":{
+      "id":"100"
+    },
+    "operations":{
+      "exposure_time":[
+        {
+          "band":"g",
+          "value":"0.55",
+          "type":"float",
+          "name":"exposure_time_i"
+        },
+        {
+          "band":"r",
+          "value":"0.66",
+          "type":"float",
+          "name":"exposure_time_r"
+        }
+      ],
+      "bad_regions":[
+        {
+          "value":"1",
+          "type":"integer",
+          "name":"Regions with bad astrometric colors"
+        },
+        {
+          "value":"2",
+          "type":"integer",
+          "name":"Fainter 2MASS star region (8 < J < 12)"
+        },
+        {
+          "value":"4",
+          "type":"integer",
+          "name":"Large nearby object (R3C catalog)"
+        },
+        {
+          "value":"8",
+          "type":"integer",
+          "name":"Bright 2MASS star region (5 < J < 8)"
+        },
+        {
+          "value":"16",
+          "type":"integer",
+          "name":"Near the LMC"
+        },
+        {
+          "value":"32",
+          "type":"integer",
+          "name":"Yale Bright Star region"
+        },
+        {
+          "value":"64",
+          "type":"integer",
+          "name":"High density of crazy colors"
+        },
+        {
+          "value":"128",
+          "type":"integer",
+          "name":"Globular Cluster (William et al. 2010)"
+        }
+      ]
+    }
+  }
+}

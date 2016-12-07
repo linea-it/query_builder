@@ -28,6 +28,11 @@ class ExposureTime():
             con.execute("commit")
             con.execute(op.CreateTableAs(self.save_at(), self._stm))
 
+    def delete(self):
+        with dal.engine.connect() as con:
+            con.execute("commit")
+            con.execute(op.DropTable(self.save_at()))
+
     def save_at(self):
         return ExposureTime.OP + "_" + input_settings.PROCESS['id']
 
@@ -60,6 +65,11 @@ class BadRegions():
         with dal.engine.connect() as con:
             con.execute("commit")
             con.execute(op.CreateTableAs(self.save_at(), self._stm))
+
+    def delete(self):
+        with dal.engine.connect() as con:
+            con.execute("commit")
+            con.execute(op.DropTable(self.save_at()))
 
     def save_at(self):
         return BadRegions.OP + "_" + input_settings.PROCESS['id']

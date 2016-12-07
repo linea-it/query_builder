@@ -50,3 +50,18 @@ def _create_table_as(element, compiler, **kw):
         element.name,
         compiler.process(element.query)
     )
+
+
+class DropTable(Executable, ClauseElement):
+    def __init__(self, name):
+        self.name = name
+
+
+@compiles(DropTable, "postgresql")
+def _drop_table(element, compiler, **kw):
+    return "DROP TABLE %s" % (element.name)
+
+
+@compiles(DropTable, "oracle")
+def _drop_table(element, compiler, **kw):
+    return "DROP TABLE %s PURGE" % (element.name)

@@ -14,12 +14,11 @@ class test_db(unittest.TestCase):
     print(dal.tables)
 
     def test_systematic_maps(self):
-        element = {'band': 'g', 'value': '0.55', 'name': 'exposure_time_i'}
-        exp_time = queries.ExposureTime(element)
+        exp_time = queries.Operation('exposure_time')
         exp_time.create()
 
     def test_bad_regions(self):
-        bad_regions = queries.BadRegions()
+        bad_regions = queries.Operation('bad_regions')
         bad_regions.create()
 
 if __name__ == '__main__':

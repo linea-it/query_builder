@@ -8,16 +8,31 @@ from utils.db import dal
 
 
 class Operation():
-    def __init__(self):
-        self._stm = self.statement()
+    def __init__(self, operation_type):
+        self.operation_type = operation_type
+
+        self._stm = None
+        self.set_operation(operation_type)
+
+    def set_operation(self, operation_type):
+        # register operations
+        operations = {}
+        operations[ExposureTime.OP] = ExposureTime()
+        operations[BadRegions.OP] = BadRegions()
+
+        if operation_type not in operations:
+            raise "This operations is not registered"
+        else:
+            self._stm = operations[operation_type]
 
     def __str__(self):
-        return (str(self._stm))
+        return (str(self._stm.get_statement()))
 
     def create(self):
         with dal.engine.connect() as con:
             con.execute("commit")
-            con.execute(op.CreateTableAs(self.save_at(), self._stm))
+            con.execute(op.CreateTableAs(self.save_at(),
+                        self._stm.get_statement()))
 
     def delete(self):
         with dal.engine.connect() as con:
@@ -25,21 +40,19 @@ class Operation():
             con.execute(op.DropTable(self.save_at()))
 
     def save_at(self):
+        return self.operation_type + "_" + input_settings.PROCESS['id']
+
+
+class Statement():
+    def get_statement(self):
         raise NotImplementedError("Implement this method")
 
-    def statement(self):
-        raise NotImplementedError("Implement this method")
 
+class ExposureTime(Statement):
+    OP = "exposure_time"
 
-class ExposureTime(Operation):
-    OP = 'exposure_time'
-
-    def __init__(self, element):
-        self.element = element
-
-        Operation.__init__(self)
-
-    def statement(self):
+    def get_statement(self):
+        element = {'band': 'g', 'value': '0.55', 'name': 'exposure_time_i'}
         table = dal.tables[ExposureTime.OP]
         stm = select(
           [
@@ -47,20 +60,14 @@ class ExposureTime(Operation):
             table.c.signal,
             table.c.ra,
             table.c.dec
-          ]).where(table.c.signal >= literal_column(self.element['value']))
+          ]).where(table.c.signal >= literal_column(element['value']))
         return stm
 
-    def save_at(self):
-        return ExposureTime.OP + "_" + input_settings.PROCESS['id']
 
-
-class BadRegions(Operation):
+class BadRegions(Statement):
     OP = 'bad_regions'
 
-    def __init__(self):
-        Operation.__init__(self)
-
-    def statement(self):
+    def get_statement(self):
         mask = 0
         for element in input_settings.OPERATIONS['bad_regions']:
             mask += int(element['value'])
@@ -77,6 +84,3 @@ class BadRegions(Operation):
           ]).where(op.BitwiseAnd(table.c.signal,
                    literal_column(str(mask))) > literal_column('0'))
         return stm
-
-    def save_at(self):
-        return BadRegions.OP + "_" + input_settings.PROCESS['id']

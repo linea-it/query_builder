@@ -2,7 +2,7 @@ from model import queries
 import settings
 
 
-def dfs_pre_order(node):
+def dfs_post_order(node):
     if 'sub_op' in node:
         dfs_pre_order(node['sub_op'])
     if 'op' in node:

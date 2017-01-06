@@ -2,199 +2,130 @@ from sqlalchemy.sql import select
 from sqlalchemy import (create_engine, Table, MetaData)
 from sqlalchemy.sql.expression import literal_column
 
-from inout import input_settings
+# from inout import input_settings
 from model import sql_operations as op
 from utils.db import dal
 
 
 class Operation():
-    def __init__(self, operation_type):
-        self.operation_type = operation_type
+    def __init__(self, params, sub_operations):
+        self._params = params
+        self._sub_operations = sub_operations
 
+        # define operation
         self._stm = None
-        self._set_operation(operation_type)
+        key, value = list(params.items())[0]
+        self._set_operation(value['op'])
+
+        # create temp table to let the data accessible.
+        self.create()
+        self.data_table = self._access_data_table()
 
     def _set_operation(self, operation_type):
-        # register operations
-        operations = {}
-        operations[ExposureTime.OP] = ExposureTime()
-        operations[BadRegions.OP] = BadRegions()
-        operations[CombinedMaps.OP] = CombinedMaps()
-
-        if operation_type not in operations:
-            raise "This operations is not registered"
+        if operation_type == GreatEqual.OP:
+            op = GreatEqual()
+        elif operation_type == CombinedMaps.OP:
+            op = CombinedMaps()
         else:
-            self._stm = operations[operation_type]
+            raise "This operations is not registered"
+
+        self._stm = op.get_statement(self._params, self._sub_operations)
 
     def __str__(self):
-        return (str(self._stm.get_statement()))
+        return (str(self._stm))
+
+    def operation_name(self):
+        return list(self._params.keys())[0]
+
+    def save_at(self):
+        return self.operation_name() + "_" + "table"
 
     def create(self):
         with dal.engine.connect() as con:
             con.execute("commit")
             con.execute(op.CreateTableAs(self.save_at(),
-                        self._stm.get_statement()))
+                        self._stm))
+
+    def _access_data_table(self):
+        with dal.engine.connect() as con:
+            table = Table(self.save_at(), dal.metadata, autoload=True)
+            stmt = select([table])
+            result = con.execute(stmt).fetchall()
+        return result
+
+    def access_data_table(self):
+        return self.data_table
 
     def delete(self):
         with dal.engine.connect() as con:
             con.execute("commit")
             con.execute(op.DropTable(self.save_at()))
 
-    def save_at(self):
-        return self.operation_name() + "_" + input_settings.PROCESS['id']
-
 
 class Statement():
-    def get_statement(self):
-        raise NotImplementedError("Implement this method")
-
-    def operation_name(self):
+    def get_statement(self, params, sub_operations):
         raise NotImplementedError("Implement this method")
 
 
 class GreatEqual(Statement):
     OP = "great_equal"
 
-    def __init__(self, param):
-        self.param = param
-        # checks ?
-
-    def get_statement(self):
-        table = dal.tables[ExposureTime.OP]
+    def get_statement(self, params, sub_operations):
+        key, value = list(params.items())[0]
+        table = dal.tables[value['db']]
         stm = select(
           [
             table.c.pixel,
             table.c.signal,
             table.c.ra,
             table.c.dec
-          ]).where(table.c.signal >= literal_column(self.param['value']))
+          ]).where(table.c.signal >= literal_column(value['value']))
         return stm
-
-    def operation_name(self):
-        return self.param('name')
-
-
-
-class BadRegions(Statement):
-    OP = 'bad_regions'
-
-    def __init__(self, param):
-        self.param = param
-
-    def get_statement(self):
-        mask = 0
-        for element in self.param:
-            mask += int(element['value'])
-
-        print ('Mask = %d' % mask)
-
-        table = dal.tables[BadRegions.OP]
-        stm = select(
-          [
-            table.c.pixel,
-            table.c.signal,
-            table.c.ra,
-            table.c.dec
-          ]).where(op.BitwiseAnd(table.c.signal,
-                   literal_column(str(mask))) > literal_column('0'))
-        return stm
-
-    def operation_name(self):
-        return BadRegions.OP
-
-
-class SystematicMap(Statement):
-    OP = "systematic_map"
-
-    def __init__(self):
-        self._maps = []
-        self._tables_name = []
-
-        if BadRegions.OP in self._input:
-            bad_regions = Operation(BadRegions.OP)
-            self._maps.append(bad_regions)
-            self._unite.append(bad_regions.save_at())
-
-        if RadialMap.OP in self._input:
-            radial_map = Operation(RadialMap.OP)
-            self._maps.append(radial_map)
-            self._unite.append(radial_map.save_at())
-
-        if CombinedMaps.OP in self._input:
-            combined_maps = Operation(CombinedMaps.OP)
-            self._maps.extend(combined_maps.all_maps())
-            self._intersect.append(combined_maps.tables_to_intersect())
-
-    def get_statement(self):
-        table = dal.tables[ExposureTime.OP]
-        stm = select(
-          [
-            table.c.pixel,
-            table.c.signal,
-            table.c.ra,
-            table.c.dec
-          ]).where(table.c.signal >= literal_column(self.element['value']))
-        return stm
-
-    def operation_name(self):
-        return self.element('name')
 
 
 class CombinedMaps(Statement):
-    OP = 'combined_maps'
+    OP = 'join'
 
-    def __init__(self):
-        return
+    def get_statement(self, params, sub_operations):
+        print("##### params")
+        print(params)
+        sub_op_names = list(params[list(params.keys())[0]]['sub_op'].keys())
+        print("##### sub_op_names")
+        print(sub_op_names)
 
-    def get_statement(self):
-        combined_maps = input_settings.OPERATIONS['combined_maps']
+        print("##### sub_operations")
+        print(sub_operations)
 
-        for sys_maps in combined_maps:
-            for element in combined_maps[sys_maps]:
-                operation = Operation('great_equal')
-                operation.create()
+        # load tables.
+        print("__tables__")
+        sub_tables = []
+        for table in sub_op_names:
+            print(sub_operations['sub_op'][table].save_at())
+            sub_tables.append(Table(sub_operations['sub_op'][table].save_at(),
+                                    dal.metadata, autoload=True))
 
+        # create tables dd
+        stm = select(
+          [
+            sub_tables[0].c.pixel,
+            sub_tables[0].c.signal,
+            sub_tables[0].c.ra,
+            sub_tables[0].c.dec
+          ])
 
-class FootprintMap(Statement):
-    OP = 'footprint_map'
+        # # for sub_table in sub_tables[1:]:
+        # #     stm_join = stm_join(sub_table)
+        stm_join = sub_tables[0]
+        print("##### sub_tables")
+        print(sub_tables)
+        for i in range(1, len(sub_tables)):
+            stm_join = stm_join.join(sub_tables[i], sub_tables[i-1].c.pixel ==
+                                     sub_tables[i].c.pixel)
+        stm = stm.select_from(stm_join)
 
-    def __init__(self):
-        self._input = input_settings.OPERATIONS
-
-        self._maps = []
-        self._unite = []
-        self._intersect = []
-
-        if BadRegions.OP in self._input:
-            bad_regions = Operation(BadRegions.OP)
-            self._maps.append(bad_regions)
-            self._unite.append(bad_regions.save_at())
-
-        if RadialMap.OP in self._input:
-            radial_map = Operation(RadialMap.OP)
-            self._maps.append(radial_map)
-            self._unite.append(radial_map.save_at())
-
-        if CombinedMaps.OP in self._input:
-            combined_maps = Operation(CombinedMaps.OP)
-            self._maps.extend(combined_maps.all_maps())
-            self._intersect.append(combined_maps.tables_to_intersect())
-
-    def get_statement(self):
-        return
-
-    def operation_name(self):
-        return FootprintMap.OP
-
-    def all_maps(self):
-        return self._maps
-
-
-class QueryBuilder(Statement):
-    def __init__(self):
-
-        self._footprint = Operation(FootprintMap.OP)
-        # self._catalog = Operation(Catalog.OP)
-
-    def all_operations(self):
-        return return self._footprint.all_maps()
+        # REVIEW
+        # drop sub tables
+        # for k, v in sub_operations['sub_op'].items():
+        #     v.delete()
+        # print("##### PASSEI #####")
+        return stm

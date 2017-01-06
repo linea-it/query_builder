@@ -4,13 +4,14 @@ import settings
 
 
 class DataAccessLayer():
-    engine = None
-    metadata = MetaData()
-    tables = {}
+    def __init__(self):
+        self.engine = None
+        self.metadata = MetaData()
+        self.tables = {}
 
     def db_init(self, con_string):
         self.engine = create_engine(con_string)
-        self.metadata.create_all(self.engine)
+        # self.metadata.create_all(self.engine)
 
     def load_tables(self):
         data = {}
@@ -18,6 +19,7 @@ class DataAccessLayer():
             data = json.load(data_file)
 
         with self.engine.connect() as con:
+            self.metadata = MetaData(self.engine)
             for operation in data:
                 self.tables[operation] = Table(data[operation],
                                                self.metadata, autoload=True)

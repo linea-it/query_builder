@@ -1,79 +1,27 @@
 {
   "operations": {
-    "footprint": {
-      "op": "footprint", 
-      "description": "footprint description", 
+    "exposure_time": {
+      "op": "join", 
+      "description": "systematic_maps exposure_time", 
       "sub_op": {
-        "systematic_maps": {
-          "exposure_time": {
-            "op": "join", 
-            "description": "systematic_maps exposure_time", 
-            "sub_op": {
-              "exposure_time_i": {
-                "op": "great_equal", 
-                "description": "exposure_time_i description", 
-                "band": "g", 
-                "value": "0.55", 
-                "type": "float"
-              }, 
-              "exposure_time_r": {
-                "op": "great_equal", 
-                "description": "exposure_time_r description", 
-                "band": "r", 
-                "value": "0.66", 
-                "type": "float"
-              }
-            }
-          }, 
-          "depth_map": {
-            "op": "join", 
-            "description": "systematic_maps depth_map", 
-            "sub_op": {
-              "depth_map_g": {
-                "op": "great_equal", 
-                "description": "depth_map_g description", 
-                "band": "g", 
-                "value": "0.55", 
-                "type": "float"
-              }, 
-              "depth_map_i": {
-                "op": "great_equal", 
-                "description": "depth_map_i description", 
-                "band": "i", 
-                "value": "0.33", 
-                "type": "float", 
-                "name": "depth_map_i"
-              }
-            }
-          }
+        "exposure_time_i": {
+          "db": "systematic_map",
+          "op": "great_equal", 
+          "description": "exposure_time_i description", 
+          "band": "g", 
+          "value": "0.55", 
+          "type": "float"
         }, 
-        "bad_regions": {
-          "op": "bad_regions", 
-          "description": "bad_regions description", 
-          "filters": [
-            {
-              "value": "1", 
-              "type": "integer", 
-              "name": "Regions with bad astrometric colors"
-            }, 
-            {
-              "value": "32", 
-              "type": "integer", 
-              "name": "Yale Bright Star region"
-            }, 
-            {
-              "value": "64", 
-              "type": "integer", 
-              "name": "High density of crazy colors"
-            }, 
-            {
-              "value": "128", 
-              "type": "integer", 
-              "name": "Globular Cluster (William et al. 2010)"
-            }
-          ]
+        "exposure_time_r": {
+          "db": "systematic_map_2",
+          "op": "great_equal", 
+          "description": "exposure_time_r description", 
+          "band": "r", 
+          "value": "0.66", 
+          "type": "float"
         }
       }
     }
   }
 }
+

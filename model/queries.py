@@ -87,20 +87,11 @@ class CombinedMaps(Statement):
     OP = 'join'
 
     def get_statement(self, params, sub_operations):
-        print("##### params")
-        print(params)
         sub_op_names = list(params[list(params.keys())[0]]['sub_op'].keys())
-        print("##### sub_op_names")
-        print(sub_op_names)
-
-        print("##### sub_operations")
-        print(sub_operations)
 
         # load tables.
-        print("__tables__")
         sub_tables = []
         for table in sub_op_names:
-            print(sub_operations['sub_op'][table].save_at())
             sub_tables.append(Table(sub_operations['sub_op'][table].save_at(),
                                     dal.metadata, autoload=True))
 
@@ -116,8 +107,6 @@ class CombinedMaps(Statement):
         # # for sub_table in sub_tables[1:]:
         # #     stm_join = stm_join(sub_table)
         stm_join = sub_tables[0]
-        print("##### sub_tables")
-        print(sub_tables)
         for i in range(1, len(sub_tables)):
             stm_join = stm_join.join(sub_tables[i], sub_tables[i-1].c.pixel ==
                                      sub_tables[i].c.pixel)
@@ -127,5 +116,4 @@ class CombinedMaps(Statement):
         # drop sub tables
         # for k, v in sub_operations['sub_op'].items():
         #     v.delete()
-        # print("##### PASSEI #####")
         return stm

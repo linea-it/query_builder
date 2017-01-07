@@ -74,12 +74,7 @@ class GreatEqual(Statement):
         key, value = list(params.items())[0]
         table = dal.tables[value['db']]
         stm = select(
-          [
-            table.c.pixel,
-            table.c.signal,
-            table.c.ra,
-            table.c.dec
-          ]).where(table.c.signal >= literal_column(value['value']))
+          [table]).where(table.c.signal >= literal_column(value['value']))
         return stm
 
 
@@ -95,17 +90,8 @@ class CombinedMaps(Statement):
             sub_tables.append(Table(sub_operations['sub_op'][table].save_at(),
                                     dal.metadata, autoload=True))
 
-        # create tables dd
-        stm = select(
-          [
-            sub_tables[0].c.pixel,
-            sub_tables[0].c.signal,
-            sub_tables[0].c.ra,
-            sub_tables[0].c.dec
-          ])
-
-        # # for sub_table in sub_tables[1:]:
-        # #     stm_join = stm_join(sub_table)
+        # join statement
+        stm = select([sub_tables[0]])
         stm_join = sub_tables[0]
         for i in range(1, len(sub_tables)):
             stm_join = stm_join.join(sub_tables[i], sub_tables[i-1].c.pixel ==

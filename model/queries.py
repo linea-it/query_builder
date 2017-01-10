@@ -57,7 +57,8 @@ class BadRegions(Statement):
         key, value = list(params.items())[0]
         table = dal.tables[value['db']]
         stm = select([table]).where(sql_operations.BitwiseAnd(table.c.signal,
-                                    literal_column(value['value'])) > 0)
+                                    literal_column(value['value'])) >
+                                    literal_column('0'))
         return stm
 
 

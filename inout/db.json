@@ -1,4 +1,6 @@
 {
   "systematic_map":"systematic_map",
-  "systematic_map_2":"systematic_map_2"
+  "systematic_map_2":"systematic_map_2",
+  "bad_regions_map":"bad_regions_map",
+  "footprint_db":"footprint_db"
 }

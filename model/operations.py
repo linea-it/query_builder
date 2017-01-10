@@ -56,13 +56,8 @@ class Operation():
 
 
 class OperationsBuilder():
-    def __init__(self):
+    def __init__(self, data):
         self.operations = OrderedDict()
-
-        data = {}
-        with open('inout/data.json') as data_file:
-            data = json.load(data_file, object_pairs_hook=OrderedDict)
-
         self.dfs_pre_order(data['operations'])
 
     def dfs_pre_order(self, node):
@@ -91,3 +86,10 @@ class OperationsBuilder():
 
     def operations_list(self):
         return self.operations
+
+    @staticmethod
+    def json_to_ordered_dict(file_path):
+        data = {}
+        with open(file_path) as data_file:
+            data = json.load(data_file, object_pairs_hook=OrderedDict)
+        return data

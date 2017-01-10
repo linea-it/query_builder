@@ -9,7 +9,6 @@ from model import queries
 
 class test_operations(unittest.TestCase):
     dal.db_init(str_connection())
-    dal.load_tables()
 
     def test_op_great_equal(self):
         params = {u'exposure_time_i': OrderedDict([

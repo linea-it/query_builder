@@ -34,8 +34,7 @@ class GreatEqual(IQuery):
 
     def get_statement(self, params, sub_operations):
         key, value = list(params.items())[0]
-        table = Table(list(params.values())[0]['db'], dal.metadata,
-                      autoload=True)
+        table = Table(value['db'], dal.metadata, autoload=True)
         stm = select(
           [table]).where(table.c.signal >= literal_column(value['value']))
         return stm
@@ -73,8 +72,7 @@ class BadRegions(IQuery):
 
     def get_statement(self, params, sub_operations):
         key, value = list(params.items())[0]
-        table = Table(list(params.values())[0]['db'], dal.metadata,
-                      autoload=True)
+        table = Table(value['db'], dal.metadata, autoload=True)
         stm = select([table]).where(sql_operations.BitwiseAnd(table.c.signal,
                                     literal_column(value['value'])) >
                                     literal_column('0'))

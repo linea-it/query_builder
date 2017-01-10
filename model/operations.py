@@ -16,28 +16,13 @@ class Operation():
         self._params = params
         self._sub_operations = sub_operations
 
-        # define operation
-        self._stm = None
-        key, value = list(params.items())[0]
-        self._set_operation(value['op'])
+        # get operation
+        op = queries.OperationBuilder().create(list(params.values())[0]['op'])
+        self._stm = op.get_statement(params, sub_operations)
 
         # create temp table to let the data accessible.
         self.create()
         self.data_table = self._access_data_table()
-
-    def _set_operation(self, operation_type):
-        if operation_type == queries.GreatEqual.OP:
-            op = queries.GreatEqual()
-        elif operation_type == queries.CombinedMaps.OP:
-            op = queries.CombinedMaps()
-        elif operation_type == queries.BadRegions.OP:
-            op = queries.BadRegions()
-        elif operation_type == queries.Footprint.OP:
-            op = queries.Footprint()
-        else:
-            raise "This operations is not registered"
-
-        self._stm = op.get_statement(self._params, self._sub_operations)
 
     def __str__(self):
         return (str(self._stm))
@@ -70,7 +55,7 @@ class Operation():
             con.execute(op.DropTable(self.save_at()))
 
 
-class OperationBuilder():
+class QueryBuilder():
     def __init__(self):
         self.operations = OrderedDict()
 

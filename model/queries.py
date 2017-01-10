@@ -7,12 +7,29 @@ from utils.db import dal
 from model import sql_operations
 
 
-class Statement():
+class IStatement():
     def get_statement(self, params, sub_operations):
         raise NotImplementedError("Implement this method")
 
 
-class GreatEqual(Statement):
+class OperationBuilder():
+    @staticmethod
+    def create(operation_type):
+        if operation_type == GreatEqual.OP:
+            op = GreatEqual()
+        elif operation_type == CombinedMaps.OP:
+            op = CombinedMaps()
+        elif operation_type == BadRegions.OP:
+            op = BadRegions()
+        elif operation_type == Footprint.OP:
+            op = Footprint()
+        else:
+            raise "This operations is not registered"
+
+        return op
+
+
+class GreatEqual(IStatement):
     OP = "great_equal"
 
     def get_statement(self, params, sub_operations):
@@ -23,7 +40,7 @@ class GreatEqual(Statement):
         return stm
 
 
-class CombinedMaps(Statement):
+class CombinedMaps(IStatement):
     OP = 'join'
 
     def get_statement(self, params, sub_operations):
@@ -50,7 +67,7 @@ class CombinedMaps(Statement):
         return stm
 
 
-class BadRegions(Statement):
+class BadRegions(IStatement):
     OP = "bad_regions"
 
     def get_statement(self, params, sub_operations):
@@ -62,7 +79,7 @@ class BadRegions(Statement):
         return stm
 
 
-class Footprint(Statement):
+class Footprint(IStatement):
     OP = 'footprint'
 
     def get_statement(self, params, sub_operations):

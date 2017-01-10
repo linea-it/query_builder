@@ -13,3 +13,4 @@ if __name__ == "__main__":
     for k, v in ops.items():
         print(k)
         print(v.access_data_table())
+        print(str(v))

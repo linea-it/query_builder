@@ -5,7 +5,6 @@ from model import operations
 
 if __name__ == "__main__":
     dal.db_init(str_connection())
-    dal.load_tables()
 
     builder = operations.OperationsBuilder()
     ops = builder.operations_list()

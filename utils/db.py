@@ -11,18 +11,8 @@ class DataAccessLayer():
 
     def db_init(self, con_string):
         self.engine = create_engine(con_string)
-        # self.metadata.create_all(self.engine)
-
-    def load_tables(self):
-        data = {}
-        with open(settings.DB_TABLES) as data_file:
-            data = json.load(data_file)
-
         with self.engine.connect() as con:
             self.metadata = MetaData(self.engine)
-            for operation in data:
-                self.tables[operation] = Table(data[operation],
-                                               self.metadata, autoload=True)
 
 dal = DataAccessLayer()
 

@@ -4,8 +4,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 DEBUG = True
 
-DB_TABLES = 'inout/db.json'
-
 DATABASE = 'default'
 DATABASES = {
     'default':  {

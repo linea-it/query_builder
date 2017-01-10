@@ -4,6 +4,8 @@ from sqlalchemy.sql.expression import literal_column
 
 from utils.db import dal
 
+from model import sql_operations
+
 
 class Statement():
     def get_statement(self, params, sub_operations):
@@ -45,4 +47,69 @@ class CombinedMaps(Statement):
         # drop sub tables
         # for k, v in sub_operations['sub_op'].items():
         #     v.delete()
+        return stm
+
+
+class BadRegions(Statement):
+    OP = "bad_regions"
+
+    def get_statement(self, params, sub_operations):
+        key, value = list(params.items())[0]
+        table = dal.tables[value['db']]
+        stm = select([table]).where(sql_operations.BitwiseAnd(table.c.signal,
+                                    literal_column(value['value'])) > 0)
+        return stm
+
+
+class Footprint(Statement):
+    OP = 'footprint'
+
+    def get_statement(self, params, sub_operations):
+        inner_join = ["exposure_time", "depth_map"]
+        left_join = ["bad_regions"]
+
+        inner_join_ops = []
+        left_join_ops = []
+
+        # divide operations accordingly
+        for k, v in list(sub_operations['sub_op'].items()):
+            if k in inner_join:
+                inner_join_ops.append(v)
+            elif k in left_join:
+                left_join_ops.append(v)
+            else:
+                raise("operations does not exist.")
+
+        # load tables.
+        table_footprint = Table(list(params.values())[0]['db'], dal.metadata,
+                                autoload=True)
+        sub_tables_inner = []
+        for table in inner_join_ops:
+            sub_tables_inner.append(Table(table.save_at(), dal.metadata,
+                                    autoload=True))
+        sub_tables_left = []
+        for table in left_join_ops:
+            sub_tables_left.append(Table(table.save_at(), dal.metadata,
+                                   autoload=True))
+
+        stm = select([table_footprint])
+
+        # join statement
+        stm_join = table_footprint
+        # Inner join
+        for table in sub_tables_inner:
+            stm_join = stm_join.join(table, table_footprint.c.pixel ==
+                                     table.c.pixel)
+        # Left Join
+        for table in sub_tables_left:
+            stm_join = stm_join.join(table, table_footprint.c.pixel ==
+                                     table.c.pixel, isouter=True)
+
+        if len(sub_tables_inner) > 0 or len(sub_tables_left) > 0:
+            stm = stm.select_from(stm_join)
+
+        if len(sub_tables_left) > 0:
+            for table in sub_tables_left:
+                stm = stm.where(table.c.pixel == None)
+
         return stm

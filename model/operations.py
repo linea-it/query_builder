@@ -5,10 +5,11 @@ from collections import OrderedDict
 from sqlalchemy.sql import select
 from sqlalchemy import Table
 
-import queries
+from model import queries
 from model import sql_operations as op
 
 from utils.db import dal
+
 
 class Operation():
     def __init__(self, params, sub_operations):
@@ -29,6 +30,10 @@ class Operation():
             op = queries.GreatEqual()
         elif operation_type == queries.CombinedMaps.OP:
             op = queries.CombinedMaps()
+        elif operation_type == queries.BadRegions.OP:
+            op = queries.BadRegions()
+        elif operation_type == queries.Footprint.OP:
+            op = queries.Footprint()
         else:
             raise "This operations is not registered"
 

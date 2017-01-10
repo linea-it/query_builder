@@ -7,7 +7,7 @@ if __name__ == "__main__":
     dal.db_init(str_connection())
     dal.load_tables()
 
-    builder = operations.QueryBuilder()
+    builder = operations.OperationsBuilder()
     ops = builder.operations_list()
 
     for k, v in ops.items():

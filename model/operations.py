@@ -16,16 +16,16 @@ class Operation():
         self._params = params
         self._sub_operations = sub_operations
 
-        # get operation
-        op = queries.OperationBuilder().create(list(params.values())[0]['op'])
-        self._stm = op.get_statement(params, sub_operations)
+        # get query
+        obj = queries.QueryBuilder().create(list(params.values())[0]['op'])
+        self._query = obj.get_statement(params, sub_operations)
 
         # create temp table to let the data accessible.
         self.create()
         self.data_table = self._access_data_table()
 
     def __str__(self):
-        return (str(self._stm))
+        return (str(self._query))
 
     def operation_name(self):
         return list(self._params.keys())[0]
@@ -37,7 +37,7 @@ class Operation():
         with dal.engine.connect() as con:
             con.execute("commit")
             con.execute(op.CreateTableAs(self.save_at(),
-                        self._stm))
+                        self._query))
 
     def _access_data_table(self):
         with dal.engine.connect() as con:
@@ -55,7 +55,7 @@ class Operation():
             con.execute(op.DropTable(self.save_at()))
 
 
-class QueryBuilder():
+class OperationsBuilder():
     def __init__(self):
         self.operations = OrderedDict()
 

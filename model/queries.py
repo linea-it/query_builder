@@ -7,30 +7,30 @@ from utils.db import dal
 from model import sql_operations
 
 
-class IStatement():
+class IQuery():
     def get_statement(self, params, sub_operations):
         raise NotImplementedError("Implement this method")
 
 
-class OperationBuilder():
+class QueryBuilder():
     @staticmethod
     def create(operation_type):
-        if operation_type == GreatEqual.OP:
-            op = GreatEqual()
-        elif operation_type == CombinedMaps.OP:
-            op = CombinedMaps()
-        elif operation_type == BadRegions.OP:
-            op = BadRegions()
-        elif operation_type == Footprint.OP:
-            op = Footprint()
+        if operation_type == GreatEqual.QUERY:
+            query = GreatEqual()
+        elif operation_type == CombinedMaps.QUERY:
+            query = CombinedMaps()
+        elif operation_type == BadRegions.QUERY:
+            query = BadRegions()
+        elif operation_type == Footprint.QUERY:
+            query = Footprint()
         else:
-            raise "This operations is not registered"
+            raise "This query is not implemented."
 
-        return op
+        return query
 
 
-class GreatEqual(IStatement):
-    OP = "great_equal"
+class GreatEqual(IQuery):
+    QUERY = "great_equal"
 
     def get_statement(self, params, sub_operations):
         key, value = list(params.items())[0]
@@ -40,8 +40,8 @@ class GreatEqual(IStatement):
         return stm
 
 
-class CombinedMaps(IStatement):
-    OP = 'join'
+class CombinedMaps(IQuery):
+    QUERY = 'join'
 
     def get_statement(self, params, sub_operations):
         sub_op_names = list(params[list(params.keys())[0]]['sub_op'].keys())
@@ -67,8 +67,8 @@ class CombinedMaps(IStatement):
         return stm
 
 
-class BadRegions(IStatement):
-    OP = "bad_regions"
+class BadRegions(IQuery):
+    QUERY = "bad_regions"
 
     def get_statement(self, params, sub_operations):
         key, value = list(params.items())[0]
@@ -79,8 +79,8 @@ class BadRegions(IStatement):
         return stm
 
 
-class Footprint(IStatement):
-    OP = 'footprint'
+class Footprint(IQuery):
+    QUERY = 'footprint'
 
     def get_statement(self, params, sub_operations):
         inner_join = ["exposure_time", "depth_map"]

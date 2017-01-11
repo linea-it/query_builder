@@ -4,6 +4,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 DEBUG = True
 
+PATH_OPS_DESCRIPTION = 'test/config/footprint_inner_left.json'
+
 DATABASE = 'default'
 DATABASES = {
     'default':  {

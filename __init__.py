@@ -1,16 +1,16 @@
 from utils.db import dal, str_connection
 
-from model import operations as ops
+from model.operations import OperationsBuilder as OB
+import settings
 
 
 if __name__ == "__main__":
     dal.db_init(str_connection())
 
-    builder = ops.OperationsBuilder(
-                ops.OperationsBuilder.json_to_ordered_dict('inout/data.json'))
-    ops = builder.operations_list()
+    builder = OB(OB.json_to_ordered_dict(settings.PATH_OPS_DESCRIPTION))
+    operations = builder.get()
 
-    for k, v in ops.items():
+    for k, v in operations.items():
         print(k)
         print(v.access_data_table())
         print(str(v))

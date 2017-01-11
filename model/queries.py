@@ -90,13 +90,14 @@ class Footprint(IQuery):
         left_join_ops = []
 
         # divide operations accordingly
-        for k, v in list(sub_operations['sub_op'].items()):
-            if k in inner_join:
-                inner_join_ops.append(v)
-            elif k in left_join:
-                left_join_ops.append(v)
-            else:
-                raise("operations does not exist.")
+        if sub_operations:
+            for k, v in list(sub_operations['sub_op'].items()):
+                if k in inner_join:
+                    inner_join_ops.append(v)
+                elif k in left_join:
+                    left_join_ops.append(v)
+                else:
+                    raise("operations does not exist.")
 
         # load tables.
         table_footprint = Table(list(params.values())[0]['db'], dal.metadata,

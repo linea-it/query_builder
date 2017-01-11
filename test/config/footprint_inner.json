@@ -1,0 +1,59 @@
+{
+  "operations": {
+    "footprint": {
+      "db": "footprint_db",
+      "op": "footprint",
+      "description": "footprint description",
+      "sub_op": {
+        "exposure_time": {
+          "op": "join", 
+          "description": "systematic_maps exposure_time", 
+          "sub_op": {
+            "exposure_time_i": {
+              "db": "systematic_map",
+              "op": "great_equal", 
+              "description": "exposure_time_i description", 
+              "band": "g", 
+              "value": "0.55"
+            }, 
+            "exposure_time_r": {
+              "db": "systematic_map_2",
+              "op": "great_equal", 
+              "description": "exposure_time_r description", 
+              "band": "r", 
+              "value": "0.33"
+            },
+            "exposure_time_z": {
+              "db": "systematic_map_2",
+              "op": "great_equal", 
+              "description": "exposure_time_z description", 
+              "band": "z", 
+              "value": "0.11"
+            }
+          }
+        },
+        "depth_map": {
+          "op": "join", 
+          "description": "systematic_maps depth_map", 
+          "sub_op": {
+            "depth_map_i": {
+              "db": "systematic_map",
+              "op": "great_equal", 
+              "description": "depth_map description", 
+              "band": "g", 
+              "value": "0.22"
+            }, 
+            "depth_map_r": {
+              "db": "systematic_map_2",
+              "op": "great_equal", 
+              "description": "exposure_time_r description", 
+              "band": "r", 
+              "value": "0.33"
+            }
+          }
+        }
+      }
+    }
+  }
+}
+

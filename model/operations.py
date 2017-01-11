@@ -84,8 +84,12 @@ class OperationsBuilder():
                 self.operations[key] = obj_op
             return new_tree, new_tree_obj
 
-    def operations_list(self):
+    def get(self):
         return self.operations
+
+    def drop_all_tables(self):
+        for op in self.operations.values():
+            op.delete()
 
     @staticmethod
     def json_to_ordered_dict(file_path):

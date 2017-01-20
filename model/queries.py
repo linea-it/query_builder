@@ -1,5 +1,5 @@
 from sqlalchemy.sql import select
-from sqlalchemy import Table
+from sqlalchemy import Table, cast, Integer
 from sqlalchemy.sql.expression import literal_column
 
 from utils.db import dal
@@ -23,6 +23,8 @@ class QueryBuilder():
             query = BadRegions()
         elif operation_type == Footprint.QUERY:
             query = Footprint()
+        elif operation_type == ObjectSelection.QUERY:
+            query = ObjectSelection()
         else:
             raise "This query is not implemented."
 
@@ -80,7 +82,8 @@ class BadRegions(IQuery):
         schema = value['schema'] if 'schema' in value else None
         table = Table(value['db'], dal.metadata, autoload=True,
                       schema=schema)
-        stm = select([table]).where(sql_operations.BitwiseAnd(table.c.signal,
+        stm = select([table]).where(sql_operations.BitwiseAnd(
+                                    cast(table.c.signal, Integer),
                                     literal_column(value['value'])) >
                                     literal_column('0'))
         return stm
@@ -140,5 +143,29 @@ class Footprint(IQuery):
         if len(sub_tables_left) > 0:
             for table in sub_tables_left:
                 stm = stm.where(table.c.pixel == None)
+
+        return stm
+
+
+class ObjectSelection(IQuery):
+    QUERY = 'object_selection'
+
+    def get_statement(self, params, sub_operations):
+        sub_op_names = list(params[list(params.keys())[0]]['sub_op'].keys())
+
+        # load tables.
+        key, value = list(params.items())[0]
+        sub_tables = []
+        for table in sub_op_names:
+            sub_tables.append(Table(sub_operations['sub_op'][table].save_at(),
+                                    dal.metadata, autoload=True))
+
+        # join statement
+        stm = select([sub_tables[0]])
+        stm_join = sub_tables[0]
+        for i in range(1, len(sub_tables)):
+            stm_join = stm_join.join(sub_tables[i], sub_tables[i-1].c.pixel ==
+                                     sub_tables[i].c.pixel)
+        stm = stm.select_from(stm_join)
 
         return stm

@@ -57,6 +57,12 @@
               "value": "0.5"
             }
           }
+        },
+        "bad_regions": {
+          "schema": "tst_lucas_oracle",
+          "db": "y1a1_coadd_cosmos_d04_bright_mask_4096_ring_10023572_sub_set",
+          "op": "bad_regions",
+          "value": "1"
         }
       }
     }

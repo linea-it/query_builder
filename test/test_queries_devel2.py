@@ -1,13 +1,21 @@
 import unittest
 from mock import patch, Mock
 
-from utils.db import dal, str_connection
+from utils.db import dal, DataAccessLayer
 
 from model import operations as ops
 
 
 class test_operations(unittest.TestCase):
-    dal.db_init(str_connection())
+    db = {
+        'dialect': 'postgresql',
+        'driver': 'psycopg2',
+        'username': 'gavo',
+        'password': 'gavo',
+        'host': 'localhost',
+        'port': '25432',
+    }
+    dal.db_init(DataAccessLayer.str_connection(db))
     base_path = "test/config_devel2/"
 
     @staticmethod

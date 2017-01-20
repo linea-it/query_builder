@@ -34,8 +34,10 @@ class GreatEqual(IQuery):
 
     def get_statement(self, params, sub_operations):
         key, value = list(params.items())[0]
+
+        schema = value['schema'] if 'schema' in value else None
         table = Table(value['db'], dal.metadata, autoload=True,
-                      schema=value['schema'])
+                      schema=schema)
         stm = select(
           [table]).where(table.c.signal >= literal_column(value['value']))
         return stm
@@ -74,8 +76,10 @@ class BadRegions(IQuery):
 
     def get_statement(self, params, sub_operations):
         key, value = list(params.items())[0]
+
+        schema = value['schema'] if 'schema' in value else None
         table = Table(value['db'], dal.metadata, autoload=True,
-                      schema=value['schema'])
+                      schema=schema)
         stm = select([table]).where(sql_operations.BitwiseAnd(table.c.signal,
                                     literal_column(value['value'])) >
                                     literal_column('0'))
@@ -104,8 +108,10 @@ class Footprint(IQuery):
 
         # load tables.
         key, value = list(params.items())[0]
+
+        schema = value['schema'] if 'schema' in value else None
         table_footprint = Table(list(params.values())[0]['db'], dal.metadata,
-                                autoload=True, schema=value['schema'])
+                                autoload=True, schema=schema)
         sub_tables_inner = []
         for table in inner_join_ops:
             sub_tables_inner.append(Table(table.save_at(), dal.metadata,

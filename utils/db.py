@@ -14,19 +14,18 @@ class DataAccessLayer():
         with self.engine.connect() as con:
             self.metadata = MetaData(self.engine)
 
+    @staticmethod
+    def str_connection(db):
+        str_con = db['dialect']
+        if 'driver' in db:
+            str_con += '+' + db['driver']
+        str_con += '://' + db['username'] + ":" + db['password'] + '@' +\
+                   db['host'] + ':' + db['port'] + '/'
+        if 'database' in db:
+            str_con += db['database']
+        else:
+            db['database'] = None
+        print(str_con)
+        return str_con
+
 dal = DataAccessLayer()
-
-
-def str_connection():
-    db = settings.DATABASES[settings.DATABASE]
-    str_con = db['dialect']
-    if 'driver' in db:
-        str_con += '+' + db['driver']
-    str_con += '://' + db['username'] + ":" + db['password'] + '@' +\
-               db['host'] + ':' + db['port'] + '/'
-    if 'database' in db:
-        str_con += db['database']
-    else:
-        db['database'] = None
-    print(str_con)
-    return str_con

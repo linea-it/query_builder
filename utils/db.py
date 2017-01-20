@@ -23,5 +23,10 @@ def str_connection():
     if 'driver' in db:
         str_con += '+' + db['driver']
     str_con += '://' + db['username'] + ":" + db['password'] + '@' +\
-               db['host'] + ':' + db['port'] + '/' + db['database']
+               db['host'] + ':' + db['port'] + '/'
+    if 'database' in db:
+        str_con += db['database']
+    else:
+        db['database'] = None
+    print(str_con)
     return str_con

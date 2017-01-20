@@ -1,0 +1,12 @@
+{
+  "operations": {
+    "mangle_maps_g": {
+      "db": "mangle_maps_4096_ring_frac_g_10024132",
+      "schema": "tst_lucas_oracle",
+      "op": "great_equal", 
+      "description": "exposure_time_i description", 
+      "band": "g", 
+      "value": "0.55"
+    }
+  }
+}

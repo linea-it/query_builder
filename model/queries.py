@@ -34,7 +34,8 @@ class GreatEqual(IQuery):
 
     def get_statement(self, params, sub_operations):
         key, value = list(params.items())[0]
-        table = Table(value['db'], dal.metadata, autoload=True)
+        table = Table(value['db'], dal.metadata, autoload=True,
+                      schema=value['schema'])
         stm = select(
           [table]).where(table.c.signal >= literal_column(value['value']))
         return stm
@@ -47,6 +48,7 @@ class CombinedMaps(IQuery):
         sub_op_names = list(params[list(params.keys())[0]]['sub_op'].keys())
 
         # load tables.
+        key, value = list(params.items())[0]
         sub_tables = []
         for table in sub_op_names:
             sub_tables.append(Table(sub_operations['sub_op'][table].save_at(),
@@ -72,7 +74,8 @@ class BadRegions(IQuery):
 
     def get_statement(self, params, sub_operations):
         key, value = list(params.items())[0]
-        table = Table(value['db'], dal.metadata, autoload=True)
+        table = Table(value['db'], dal.metadata, autoload=True,
+                      schema=value['schema'])
         stm = select([table]).where(sql_operations.BitwiseAnd(table.c.signal,
                                     literal_column(value['value'])) >
                                     literal_column('0'))
@@ -83,7 +86,7 @@ class Footprint(IQuery):
     QUERY = 'footprint'
 
     def get_statement(self, params, sub_operations):
-        inner_join = ["exposure_time", "depth_map"]
+        inner_join = ["exposure_time", "depth_map", "mangle_map"]
         left_join = ["bad_regions"]
 
         inner_join_ops = []
@@ -100,8 +103,9 @@ class Footprint(IQuery):
                     raise("operations does not exist.")
 
         # load tables.
+        key, value = list(params.items())[0]
         table_footprint = Table(list(params.values())[0]['db'], dal.metadata,
-                                autoload=True)
+                                autoload=True, schema=value['schema'])
         sub_tables_inner = []
         for table in inner_join_ops:
             sub_tables_inner.append(Table(table.save_at(), dal.metadata,

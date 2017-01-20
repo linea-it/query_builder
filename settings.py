@@ -4,9 +4,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 DEBUG = True
 
-PATH_OPS_DESCRIPTION = 'test/config/footprint_inner_left.json'
+# PATH_OPS_DESCRIPTION = 'test/config/footprint_inner_left.json'
+PATH_OPS_DESCRIPTION = 'test/config_devel2/great_equal.json'
 
-DATABASE = 'default'
+DATABASE = 'devel2'
 DATABASES = {
     'default':  {
         'dialect': 'postgresql',
@@ -33,5 +34,13 @@ DATABASES = {
         'host': 'localhost',
         'port': '49161',
         'database': 'xe',
-     }
+     },
+    'devel2': {
+        'dialect': 'postgresql',
+        'driver': 'psycopg2',
+        'username': 'gavo',
+        'password': 'gavo',
+        'host': 'localhost',
+        'port': '25432',
+    }
 }

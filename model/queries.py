@@ -151,21 +151,24 @@ class ObjectSelection(IQuery):
     QUERY = 'object_selection'
 
     def get_statement(self, params, sub_operations):
-        sub_op_names = list(params[list(params.keys())[0]]['sub_op'].keys())
+        key, value = list(params.items())[0]
+        sub_op_names = list(value['sub_op'].keys())
 
         # load tables.
         key, value = list(params.items())[0]
-        sub_tables = []
-        for table in sub_op_names:
-            sub_tables.append(Table(sub_operations['sub_op'][table].save_at(),
-                                    dal.metadata, autoload=True))
+        footprint_op = sub_operations['sub_op']['footprint']
+
+        schema = value['schema'] if 'schema' in value else None
+        footprint = Table(footprint_op.save_at(), dal.metadata, autoload=True)
+
+        objects_ring = Table(value['table_coadd_objects_ring'], dal.metadata,
+                             autoload=True, schema=schema)
 
         # join statement
-        stm = select([sub_tables[0]])
-        stm_join = sub_tables[0]
-        for i in range(1, len(sub_tables)):
-            stm_join = stm_join.join(sub_tables[i], sub_tables[i-1].c.pixel ==
-                                     sub_tables[i].c.pixel)
+        stm = select([objects_ring.c.coadd_objects_id])
+        stm_join = objects_ring
+        stm_join = stm_join.join(footprint, objects_ring.c.pixel ==
+                                 footprint.c.pixel)
         stm = stm.select_from(stm_join)
 
         return stm

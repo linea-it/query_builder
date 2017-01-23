@@ -1,0 +1,85 @@
+{
+  "operations": {
+    "object_selection": {
+      "op": "object_selection",
+      "description": "footprint description",
+      "schema": "tst_lucas_oracle",
+      "table_coadd_objects": "coadd_objects",
+      "table_coadd_objects_molygon": "coadd_objects_molygon",
+      "table_coadd_objects_ring": "coadd_objects_pixel_4096_ring",
+      "table_molygon": "molygon",
+      "cuts": {
+        "mag_type": "auto",
+        "bright_magnitude": {"i":"17.5"},
+        "magnitude_limit": {"i":"22"},
+        "color_cuts": {"gr": {"inf": "-1", "sup": "3"}, "ri": {"inf": "-1", "sup": "2.5"}, "iz": {"inf": "-1", "sup": "2"}},
+        "mangle_bitmask": "i",
+        "sextractor_bands": "i",
+        "sextractor_flags": [0, 1, 2],
+        "additional_cuts": ["remove_bbj", "'niter_model", "spreaderr_model", "bad_astronomic_colors"]
+      },
+      "sub_op": {
+        "footprint": {
+          "schema": "tst_lucas_oracle",
+          "db": "y1a1_coadd_cosmos_d04_4096_exptime_i_10023575",
+          "op": "footprint",
+          "description": "footprint description",
+          "sub_op": {
+            "exposure_time": {
+              "op": "join", 
+              "description": "systematic_maps exposure_time", 
+              "sub_op": {
+                "exposure_time_i": {
+                  "schema": "tst_lucas_oracle",
+                  "db": "y1a1_coadd_cosmos_d04_4096_exptime_i_10023575",
+                  "op": "great_equal", 
+                  "description": "exposure_time_i description", 
+                  "band": "g", 
+                  "value": "600"
+                }, 
+                "exposure_time_r": {
+                  "schema": "tst_lucas_oracle",
+                  "db": "y1a1_coadd_cosmos_d04_4096_exptime_r_10023575",
+                  "op": "great_equal", 
+                  "description": "exposure_time_r description", 
+                  "band": "r", 
+                  "value": "600"
+                },
+                "exposure_time_z": {
+                  "schema": "tst_lucas_oracle",
+                  "db": "y1a1_coadd_cosmos_d04_4096_exptime_z_10023575",
+                  "op": "great_equal", 
+                  "description": "exposure_time_z description", 
+                  "band": "z", 
+                  "value": "300"
+                }
+              }
+            },
+            "mangle_map": {
+              "op": "join", 
+              "description": "mangle_maps description", 
+              "sub_op": {
+                "mangle_maps_i": {
+                  "schema": "tst_lucas_oracle",
+                  "db": "mangle_maps_4096_ring_frac_i_10024132",
+                  "op": "great_equal", 
+                  "description": "depth_map description", 
+                  "band": "g", 
+                  "value": "0.5"
+                }, 
+                "mangle_maps_r": {
+                  "schema": "tst_lucas_oracle",
+                  "db": "mangle_maps_4096_ring_frac_r_10024132",
+                  "op": "great_equal", 
+                  "description": "exposure_time_r description", 
+                  "band": "r", 
+                  "value": "0.5"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

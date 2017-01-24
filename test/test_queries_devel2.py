@@ -34,6 +34,10 @@ class test_operations(unittest.TestCase):
         self.operations = test_operations.get_operations(
                 'footprint_inner_left.json')
 
+    def test_op_object_selection(self):
+        self.operations = test_operations.get_operations(
+                'object_selection.json')
+
     def tearDown(self):
         self.operations.drop_all_tables()
 

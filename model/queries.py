@@ -155,20 +155,39 @@ class ObjectSelection(IQuery):
         sub_op_names = list(value['sub_op'].keys())
 
         # load tables.
-        key, value = list(params.items())[0]
-        footprint_op = sub_operations['sub_op']['footprint']
-
         schema = value['schema'] if 'schema' in value else None
-        footprint = Table(footprint_op.save_at(), dal.metadata, autoload=True)
 
-        objects_ring = Table(value['table_coadd_objects_ring'], dal.metadata,
-                             autoload=True, schema=schema)
+        footprint_op = sub_operations['sub_op']['footprint']
+        t_footprint = Table(footprint_op.save_at(), dal.metadata,
+                            autoload=True)
+
+        t_objects_ring = Table(value['table_coadd_objects_ring'],
+                               dal.metadata, autoload=True, schema=schema)
 
         # join statement
-        stm = select([objects_ring.c.coadd_objects_id])
-        stm_join = objects_ring
-        stm_join = stm_join.join(footprint, objects_ring.c.pixel ==
-                                 footprint.c.pixel)
-        stm = stm.select_from(stm_join)
+        stm = select([t_objects_ring.c.coadd_objects_id])
+        stm_join = t_objects_ring
+        stm_join = stm_join.join(t_footprint, t_objects_ring.c.pixel ==
+                                 t_footprint.c.pixel)
+
+        if 'mangle_bitmask' in value:
+            print(value['mangle_bitmask'])
+            t_coadd_molygon = Table(value['table_coadd_objects_molygon'],
+                                    dal.metadata, autoload=True, schema=schema)
+            t_molygon = Table(value['table_molygon'],
+                              dal.metadata, autoload=True, schema=schema)
+
+            stm_join = stm_join.join(t_coadd_molygon,
+                                     t_objects_ring.c.coadd_objects_id ==
+                                     t_coadd_molygon.c.coadd_objects_id)
+
+            for band in value['mangle_bitmask']:
+                # give the str column and retrieve the attribute.
+                col = getattr(t_coadd_molygon.c, 'molygon_id_%s' % band)
+                stm_join = stm_join.join(t_molygon,
+                                         col == t_molygon.c.id)
+
+        # flat oprions creates alias allowing joins in the same table.
+        stm = stm.select_from(stm_join.alias(flat=True))
 
         return stm

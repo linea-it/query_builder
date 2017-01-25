@@ -1,5 +1,5 @@
-from sqlalchemy.sql import select
-from sqlalchemy import Table, cast, Integer
+from sqlalchemy.sql import select, and_, or_
+from sqlalchemy import Table, cast, Integer, func
 from sqlalchemy.sql.expression import literal_column
 
 from utils.db import dal
@@ -149,6 +149,7 @@ class Footprint(IQuery):
 
 class ObjectSelection(IQuery):
     QUERY = 'object_selection'
+    BANDS = ['g', 'r', 'i', 'z', 'y']
 
     def get_statement(self, params, sub_operations):
         key, value = list(params.items())[0]
@@ -193,7 +194,68 @@ class ObjectSelection(IQuery):
 
         stm = select([t_coadd.c.coadd_objects_id]).select_from(stm_join)
 
+        _where = []
         if 'mangle_bitmask' in value:
-            stm = stm.where(alias_table.c.hole_bitmask != 1)
+            _where.append(alias_table.c.hole_bitmask != 1)
 
+        # cuts involving only coadd_objects_columns
+        # sextractor flags
+        if 'sextractor_bands' in value and\
+           'sextractor_flags' in value:
+            # combine_flags
+            queries = []
+            sum_flags = sum(value['sextractor_flags'])
+            for band in value['sextractor_bands']:
+                query = []
+                col = getattr(t_coadd.c, 'flags_%s' % band)
+                if 0 in value['sextractor_flags']:
+                    query.append(col == literal_column('0'))
+                if sum_flags > 0:
+                    and_op = sql_operations.BitwiseAnd(
+                                   col,
+                                   literal_column(str(sum_flags)))
+                    query.append((and_op) > literal_column('0'))
+                queries.append(or_(*query))
+            _where.append(and_(*queries))
+
+        # bbj
+        if 'remove_bbj' in value['additional_cuts']:
+            _where.append(or_(
+                            t_coadd.c.nepochs_g > 0,
+                            t_coadd.c.magerr_auto_g > 0.05,
+                            t_coadd.c.mag_model_i - t_coadd.c.mag_auto_i > -0.4
+                            ))
+
+        # niter model
+        if 'niter_model' in value['additional_cuts']:
+            tmp = []
+            for band in ObjectSelection.BANDS:
+                col = getattr(t_coadd.c, 'niter_model_%s' % band)
+                tmp.append(col > literal_column('0'))
+            _where.append(and_(*tmp))
+
+        # spreaderr model
+        if 'spreaderr_model' in value['additional_cuts']:
+            tmp = []
+            for band in ObjectSelection.BANDS:
+                col = getattr(t_coadd.c, 'spreaderr_model_%s' % band)
+                tmp.append(col > literal_column('0'))
+            _where.append(and_(*tmp))
+
+        # bad astronomic color
+        if 'bad_astronomic_colors' in value['additional_cuts']:
+            _where.append(and_(
+                    and_(
+                        func.abs(t_coadd.c.alphawin_j2000_g -
+                                 t_coadd.c.alphawin_j2000_i) < 0.0003,
+                        func.abs(t_coadd.c.deltawin_j2000_g -
+                                 t_coadd.c.deltawin_j2000_i) < 0.0003
+                    ),
+                    or_(
+                        t_coadd.c.magerr_auto_g > 0.05
+                    )
+                ))
+
+        stm = stm.where(and_(*_where))
+        print(str(stm))
         return stm

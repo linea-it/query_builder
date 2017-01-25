@@ -1,6 +1,6 @@
 from sqlalchemy.sql import select, and_, or_
 from sqlalchemy import Table, cast, Integer, func
-from sqlalchemy.sql.expression import literal_column
+from sqlalchemy.sql.expression import literal_column, between
 
 from utils.db import dal
 
@@ -152,18 +152,18 @@ class ObjectSelection(IQuery):
     BANDS = ['g', 'r', 'i', 'z', 'y']
 
     def get_statement(self, params, sub_operations):
-        key, value = list(params.items())[0]
-        sub_op_names = list(value['sub_op'].keys())
+        key, values = list(params.items())[0]
+        sub_op_names = list(values['sub_op'].keys())
 
-        schema = value['schema'] if 'schema' in value else None
+        schema = values['schema'] if 'schema' in values else None
         footprint_op = sub_operations['sub_op']['footprint']
 
         # load tables.
         t_footprint = Table(footprint_op.save_at(), dal.metadata,
                             autoload=True)
-        t_coadd = Table(value['table_coadd_objects'],
+        t_coadd = Table(values['table_coadd_objects'],
                         dal.metadata, autoload=True, schema=schema)
-        t_objects_ring = Table(value['table_coadd_objects_ring'],
+        t_objects_ring = Table(values['table_coadd_objects_ring'],
                                dal.metadata, autoload=True, schema=schema)
 
         # join statement
@@ -175,17 +175,17 @@ class ObjectSelection(IQuery):
 
         # bitmask
         alias_table = None
-        if 'mangle_bitmask' in value:
-            t_coadd_molygon = Table(value['table_coadd_objects_molygon'],
+        if 'mangle_bitmask' in values:
+            t_coadd_molygon = Table(values['table_coadd_objects_molygon'],
                                     dal.metadata, autoload=True, schema=schema)
-            t_molygon = Table(value['table_molygon'],
+            t_molygon = Table(values['table_molygon'],
                               dal.metadata, autoload=True, schema=schema)
 
             stm_join = stm_join.join(t_coadd_molygon,
                                      t_coadd.c.coadd_objects_id ==
                                      t_coadd_molygon.c.coadd_objects_id)
 
-            for band in value['mangle_bitmask']:
+            for band in values['mangle_bitmask']:
                 # give the str column and retrieve the attribute.
                 alias_table = t_molygon.alias('molygon_%s' % band)
                 col = getattr(t_coadd_molygon.c, 'molygon_id_%s' % band)
@@ -195,20 +195,20 @@ class ObjectSelection(IQuery):
         stm = select([t_coadd.c.coadd_objects_id]).select_from(stm_join)
 
         _where = []
-        if 'mangle_bitmask' in value:
+        if 'mangle_bitmask' in values:
             _where.append(alias_table.c.hole_bitmask != 1)
 
         # cuts involving only coadd_objects_columns
         # sextractor flags
-        if 'sextractor_bands' in value and\
-           'sextractor_flags' in value:
+        if 'sextractor_bands' in values and\
+           'sextractor_flags' in values:
             # combine_flags
             queries = []
-            sum_flags = sum(value['sextractor_flags'])
-            for band in value['sextractor_bands']:
+            sum_flags = sum(values['sextractor_flags'])
+            for band in values['sextractor_bands']:
                 query = []
                 col = getattr(t_coadd.c, 'flags_%s' % band)
-                if 0 in value['sextractor_flags']:
+                if 0 in values['sextractor_flags']:
                     query.append(col == literal_column('0'))
                 if sum_flags > 0:
                     and_op = sql_operations.BitwiseAnd(
@@ -219,7 +219,7 @@ class ObjectSelection(IQuery):
             _where.append(and_(*queries))
 
         # bbj
-        if 'remove_bbj' in value['additional_cuts']:
+        if 'remove_bbj' in values['additional_cuts']:
             _where.append(or_(
                             t_coadd.c.nepochs_g > 0,
                             t_coadd.c.magerr_auto_g > 0.05,
@@ -227,7 +227,7 @@ class ObjectSelection(IQuery):
                             ))
 
         # niter model
-        if 'niter_model' in value['additional_cuts']:
+        if 'niter_model' in values['additional_cuts']:
             tmp = []
             for band in ObjectSelection.BANDS:
                 col = getattr(t_coadd.c, 'niter_model_%s' % band)
@@ -235,7 +235,7 @@ class ObjectSelection(IQuery):
             _where.append(and_(*tmp))
 
         # spreaderr model
-        if 'spreaderr_model' in value['additional_cuts']:
+        if 'spreaderr_model' in values['additional_cuts']:
             tmp = []
             for band in ObjectSelection.BANDS:
                 col = getattr(t_coadd.c, 'spreaderr_model_%s' % band)
@@ -243,7 +243,7 @@ class ObjectSelection(IQuery):
             _where.append(and_(*tmp))
 
         # bad astronomic color
-        if 'bad_astronomic_colors' in value['additional_cuts']:
+        if 'bad_astronomic_colors' in values['additional_cuts']:
             _where.append(and_(
                     and_(
                         func.abs(t_coadd.c.alphawin_j2000_g -
@@ -255,6 +255,50 @@ class ObjectSelection(IQuery):
                         t_coadd.c.magerr_auto_g > 0.05
                     )
                 ))
+
+        # REVIEW: zero_point is not beeing applied. mag_auto is hardcoded.
+        # signal to noise cuts
+        if 'sn_cuts' in values:
+            tmp = []
+            for element in values['sn_cuts'].items():
+                band, value = element
+                col = getattr(t_coadd.c, 'magerr_auto_%s' % band)
+                tmp.append(and_(
+                        col > literal_column('0'),
+                        1.086/col > literal_column(str(value))
+                    ))
+            _where.append(and_(*tmp))
+
+        # magnitude limit
+        if 'magnitude_limit' in values:
+            tmp = []
+            for element in values['magnitude_limit'].items():
+                band, value = element
+                col = getattr(t_coadd.c, 'mag_auto_%s' % band)
+                tmp.append(col < literal_column(str(value)))
+            _where.append(and_(*tmp))
+
+        # bright magnitude limit
+        if 'bright_magnitude' in values:
+            tmp = []
+            for element in values['bright_magnitude'].items():
+                band, value = element
+                col = getattr(t_coadd.c, 'mag_auto_%s' % band)
+                tmp.append(col > literal_column(str(value)))
+            _where.append(and_(*tmp))
+
+        # color cuts
+        if 'color_cuts' in values:
+            tmp = []
+            for element in values['color_cuts'].items():
+                band, value = element
+                print(band)
+                print(value)
+                col_max = getattr(t_coadd.c, 'mag_auto_%s' % band[0])
+                col_min = getattr(t_coadd.c, 'mag_auto_%s' % band[1])
+                tmp.append(between(col_max - col_min, value[0], value[1]))
+                print(str(between(col_max - col_min, value[0], value[1])))
+            _where.append(and_(*tmp))
 
         stm = stm.where(and_(*_where))
         print(str(stm))

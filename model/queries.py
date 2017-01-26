@@ -25,6 +25,8 @@ class QueryBuilder():
             query = Footprint()
         elif operation_type == ObjectSelection.QUERY:
             query = ObjectSelection()
+        elif operation_type == SgSeparation.QUERY:
+            query = SgSeparation()
         else:
             raise "This query is not implemented."
 
@@ -173,6 +175,8 @@ class ObjectSelection(IQuery):
         stm_join = stm_join.join(t_coadd, t_objects_ring.c.coadd_objects_id ==
                                  t_coadd.c.coadd_objects_id)
 
+        _where = []
+
         # bitmask
         alias_table = None
         if 'mangle_bitmask' in values:
@@ -191,11 +195,6 @@ class ObjectSelection(IQuery):
                 col = getattr(t_coadd_molygon.c, 'molygon_id_%s' % band)
                 stm_join = stm_join.join(alias_table,
                                          col == alias_table.c.id)
-
-        stm = select([t_coadd.c.coadd_objects_id]).select_from(stm_join)
-
-        _where = []
-        if 'mangle_bitmask' in values:
             _where.append(alias_table.c.hole_bitmask != 1)
 
         # cuts involving only coadd_objects_columns
@@ -300,6 +299,42 @@ class ObjectSelection(IQuery):
                 print(str(between(col_max - col_min, value[0], value[1])))
             _where.append(and_(*tmp))
 
-        stm = stm.where(and_(*_where))
+        stm = select([t_coadd.c.coadd_objects_id]).\
+            select_from(stm_join).where(and_(*_where))
+
         print(str(stm))
+        return stm
+
+
+class SgSeparation(IQuery):
+    QUERY = 'sg_separation'
+
+    def get_statement(self, params, sub_operations):
+        key, values = list(params.items())[0]
+
+        schema = values['schema'] if 'schema' in values else None
+        obj_selection_op = sub_operations['sub_op']['object_selection']
+
+        # load tables.
+        t_obj_selection = Table(obj_selection_op.save_at(), dal.metadata,
+                                autoload=True)
+        t_sg = []
+        for table in values['tables_sg']:
+            t_sg.append(Table(table, dal.metadata, autoload=True,
+                              schema=schema))
+
+        _where = []
+        # join statement
+        stm_join = t_obj_selection
+        for table in t_sg:
+            stm_join = stm_join.join(
+                table, t_obj_selection.c.coadd_objects_id ==
+                table.c.coadd_objects_id)
+            col = getattr(table.c, '%s' % values['ref_band'])
+            _where.append(col == literal_column('0'))
+
+        stm = select([t_obj_selection.c.coadd_objects_id]).\
+            select_from(stm_join).where(and_(*_where))
+
+        print(stm)
         return stm

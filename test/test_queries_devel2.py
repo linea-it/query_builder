@@ -38,6 +38,10 @@ class test_operations(unittest.TestCase):
         self.operations = test_operations.get_operations(
                 'object_selection.json')
 
+    def test_op_sg_separation(self):
+        self.operations = test_operations.get_operations(
+                'sg_separation.json')
+
     def tearDown(self):
         self.operations.drop_all_tables()
 

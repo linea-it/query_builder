@@ -27,6 +27,8 @@ class QueryBuilder():
             query = ObjectSelection()
         elif operation_type == SgSeparation.QUERY:
             query = SgSeparation()
+        elif operation_type == PhotoZ.QUERY:
+            query = PhotoZ()
         else:
             raise "This query is not implemented."
 
@@ -334,6 +336,39 @@ class SgSeparation(IQuery):
             _where.append(col == literal_column('0'))
 
         stm = select([t_obj_selection.c.coadd_objects_id]).\
+            select_from(stm_join).where(and_(*_where))
+
+        print(stm)
+        return stm
+
+
+class PhotoZ(IQuery):
+    QUERY = 'photoz'
+
+    def get_statement(self, params, sub_operations):
+        key, values = list(params.items())[0]
+
+        schema = values['schema'] if 'schema' in values else None
+        sub_op = sub_operations['sub_op'].values()[0]
+
+        # load tables.
+        t_sub_op = Table(sub_op.save_at(), dal.metadata, autoload=True)
+        t_pz = []
+        for table in values['tables_zp']:
+            t_pz.append(Table(table, dal.metadata, autoload=True,
+                              schema=schema))
+
+        _where = []
+        # join statement
+        stm_join = t_sub_op
+        for table in t_pz:
+            stm_join = stm_join.join(
+                table, t_sub_op.c.coadd_objects_id ==
+                table.c.coadd_objects_id)
+            _where.append(and_(table.c.z_best > values['zmin'],
+                               table.c.z_best < values['zmax']))
+
+        stm = select([t_sub_op.c.coadd_objects_id]).\
             select_from(stm_join).where(and_(*_where))
 
         print(stm)

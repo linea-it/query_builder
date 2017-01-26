@@ -42,6 +42,10 @@ class test_operations(unittest.TestCase):
         self.operations = test_operations.get_operations(
                 'sg_separation.json')
 
+    def test_op_photoz(self):
+        self.operations = test_operations.get_operations(
+                'photoz.json')
+
     def tearDown(self):
         self.operations.drop_all_tables()
 

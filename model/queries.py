@@ -29,6 +29,8 @@ class QueryBuilder():
             query = SgSeparation()
         elif operation_type == PhotoZ.QUERY:
             query = PhotoZ()
+        elif operation_type == GalaxyProperties.QUERY:
+            query = GalaxyProperties()
         else:
             raise "This query is not implemented."
 
@@ -293,18 +295,14 @@ class ObjectSelection(IQuery):
             tmp = []
             for element in values['color_cuts'].items():
                 band, value = element
-                print(band)
-                print(value)
                 col_max = getattr(t_coadd.c, 'mag_auto_%s' % band[0])
                 col_min = getattr(t_coadd.c, 'mag_auto_%s' % band[1])
                 tmp.append(between(col_max - col_min, value[0], value[1]))
-                print(str(between(col_max - col_min, value[0], value[1])))
             _where.append(and_(*tmp))
 
         stm = select([t_coadd.c.coadd_objects_id]).\
             select_from(stm_join).where(and_(*_where))
 
-        print(str(stm))
         return stm
 
 
@@ -338,7 +336,6 @@ class SgSeparation(IQuery):
         stm = select([t_obj_selection.c.coadd_objects_id]).\
             select_from(stm_join).where(and_(*_where))
 
-        print(stm)
         return stm
 
 
@@ -371,5 +368,32 @@ class PhotoZ(IQuery):
         stm = select([t_sub_op.c.coadd_objects_id]).\
             select_from(stm_join).where(and_(*_where))
 
-        print(stm)
+        return stm
+
+
+class GalaxyProperties(IQuery):
+    QUERY = 'galaxy_properties'
+
+    def get_statement(self, params, sub_operations):
+        key, values = list(params.items())[0]
+
+        schema = values['schema'] if 'schema' in values else None
+        sub_op = sub_operations['sub_op'].values()[0]
+
+        # load tables.
+        t_sub_op = Table(sub_op.save_at(), dal.metadata, autoload=True)
+        t_gp = []
+        for table in values['tables_gp']:
+            t_gp.append(Table(table, dal.metadata, autoload=True,
+                              schema=schema))
+
+        # join statement
+        stm_join = t_sub_op
+        for table in t_gp:
+            stm_join = stm_join.join(
+                table, t_sub_op.c.coadd_objects_id == table.c.coadd_objects_id)
+
+        stm = select([t_sub_op.c.coadd_objects_id]).\
+            select_from(stm_join)
+
         return stm

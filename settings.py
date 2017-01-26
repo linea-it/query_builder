@@ -1,4 +1,4 @@
-OPERATIONS_FILE = 'test/config_devel2/object_selection.json'
+OPERATIONS_FILE = 'test/config_devel2/galaxy_properties.json'
 
 DATABASE = 'devel2'
 DATABASES = {

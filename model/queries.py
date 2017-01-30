@@ -149,17 +149,14 @@ class ObjectSelection(IQuery):
     BANDS = ['g', 'r', 'i', 'z', 'y']
 
     def get_statement(self, params, sub_operations):
-        key, values = list(params.items())[0]
-        sub_op_names = list(values['sub_op'].keys())
-
-        schema = values['schema'] if 'schema' in values else None
+        schema = params['schema'] if 'schema' in params else None
 
         # load tables.
-        t_footprint = Table(sub_operations['sub_op']['footprint'].save_at(),
+        t_footprint = Table(sub_operations['footprint'].save_at(),
                             dal.metadata, autoload=True)
-        t_coadd = Table(values['table_coadd_objects'],
+        t_coadd = Table(params['table_coadd_objects'],
                         dal.metadata, autoload=True, schema=schema)
-        t_objects_ring = Table(values['table_coadd_objects_ring'],
+        t_objects_ring = Table(params['table_coadd_objects_ring'],
                                dal.metadata, autoload=True, schema=schema)
 
         # join statement
@@ -173,17 +170,17 @@ class ObjectSelection(IQuery):
 
         # bitmask
         alias_table = None
-        if 'mangle_bitmask' in values:
-            t_coadd_molygon = Table(values['table_coadd_objects_molygon'],
+        if 'mangle_bitmask' in params:
+            t_coadd_molygon = Table(params['table_coadd_objects_molygon'],
                                     dal.metadata, autoload=True, schema=schema)
-            t_molygon = Table(values['table_molygon'],
+            t_molygon = Table(params['table_molygon'],
                               dal.metadata, autoload=True, schema=schema)
 
             stm_join = stm_join.join(t_coadd_molygon,
                                      t_coadd.c.coadd_objects_id ==
                                      t_coadd_molygon.c.coadd_objects_id)
 
-            for band in values['mangle_bitmask']:
+            for band in params['mangle_bitmask']:
                 # give the str column and retrieve the attribute.
                 alias_table = t_molygon.alias('molygon_%s' % band)
                 col = getattr(t_coadd_molygon.c, 'molygon_id_%s' % band)
@@ -193,15 +190,15 @@ class ObjectSelection(IQuery):
 
         # cuts involving only coadd_objects_columns
         # sextractor flags
-        if 'sextractor_bands' in values and\
-           'sextractor_flags' in values:
+        if 'sextractor_bands' in params and\
+           'sextractor_flags' in params:
             # combine_flags
             queries = []
-            sum_flags = sum(values['sextractor_flags'])
-            for band in values['sextractor_bands']:
+            sum_flags = sum(params['sextractor_flags'])
+            for band in params['sextractor_bands']:
                 query = []
                 col = getattr(t_coadd.c, 'flags_%s' % band)
-                if 0 in values['sextractor_flags']:
+                if 0 in params['sextractor_flags']:
                     query.append(col == literal_column('0'))
                 if sum_flags > 0:
                     and_op = sql_operations.BitwiseAnd(
@@ -212,7 +209,7 @@ class ObjectSelection(IQuery):
             _where.append(and_(*queries))
 
         # bbj
-        if 'remove_bbj' in values['additional_cuts']:
+        if 'remove_bbj' in params['additional_cuts']:
             _where.append(or_(
                             t_coadd.c.nepochs_g > 0,
                             t_coadd.c.magerr_auto_g > 0.05,
@@ -220,7 +217,7 @@ class ObjectSelection(IQuery):
                             ))
 
         # niter model
-        if 'niter_model' in values['additional_cuts']:
+        if 'niter_model' in params['additional_cuts']:
             tmp = []
             for band in ObjectSelection.BANDS:
                 col = getattr(t_coadd.c, 'niter_model_%s' % band)
@@ -228,7 +225,7 @@ class ObjectSelection(IQuery):
             _where.append(and_(*tmp))
 
         # spreaderr model
-        if 'spreaderr_model' in values['additional_cuts']:
+        if 'spreaderr_model' in params['additional_cuts']:
             tmp = []
             for band in ObjectSelection.BANDS:
                 col = getattr(t_coadd.c, 'spreaderr_model_%s' % band)
@@ -236,7 +233,7 @@ class ObjectSelection(IQuery):
             _where.append(and_(*tmp))
 
         # bad astronomic color
-        if 'bad_astronomic_colors' in values['additional_cuts']:
+        if 'bad_astronomic_colors' in params['additional_cuts']:
             _where.append(and_(
                     and_(
                         func.abs(t_coadd.c.alphawin_j2000_g -
@@ -251,9 +248,9 @@ class ObjectSelection(IQuery):
 
         # REVIEW: zero_point is not beeing applied. mag_auto is hardcoded.
         # signal to noise cuts
-        if 'sn_cuts' in values:
+        if 'sn_cuts' in params:
             tmp = []
-            for element in values['sn_cuts'].items():
+            for element in params['sn_cuts'].items():
                 band, value = element
                 col = getattr(t_coadd.c, 'magerr_auto_%s' % band)
                 tmp.append(and_(
@@ -263,27 +260,27 @@ class ObjectSelection(IQuery):
             _where.append(and_(*tmp))
 
         # magnitude limit
-        if 'magnitude_limit' in values:
+        if 'magnitude_limit' in params:
             tmp = []
-            for element in values['magnitude_limit'].items():
+            for element in params['magnitude_limit'].items():
                 band, value = element
                 col = getattr(t_coadd.c, 'mag_auto_%s' % band)
                 tmp.append(col < literal_column(str(value)))
             _where.append(and_(*tmp))
 
         # bright magnitude limit
-        if 'bright_magnitude' in values:
+        if 'bright_magnitude' in params:
             tmp = []
-            for element in values['bright_magnitude'].items():
+            for element in params['bright_magnitude'].items():
                 band, value = element
                 col = getattr(t_coadd.c, 'mag_auto_%s' % band)
                 tmp.append(col > literal_column(str(value)))
             _where.append(and_(*tmp))
 
         # color cuts
-        if 'color_cuts' in values:
+        if 'color_cuts' in params:
             tmp = []
-            for element in values['color_cuts'].items():
+            for element in params['color_cuts'].items():
                 band, value = element
                 col_max = getattr(t_coadd.c, 'mag_auto_%s' % band[0])
                 col_min = getattr(t_coadd.c, 'mag_auto_%s' % band[1])
@@ -300,14 +297,12 @@ class SgSeparation(IQuery):
     QUERY = 'sg_separation'
 
     def get_statement(self, params, sub_operations):
-        key, values = list(params.items())[0]
-
-        schema = values['schema'] if 'schema' in values else None
+        schema = params['schema'] if 'schema' in params else None
         # load tables.
-        t_obj_selection = Table(sub_operations['sub_op']['object_selection'].\
-                                save_at(), dal.metadata, autoload=True)
+        t_obj_selection = Table(sub_operations['object_selection'].save_at(),
+                                dal.metadata, autoload=True)
         t_sg = []
-        for table in values['tables_sg']:
+        for table in params['tables_sg']:
             t_sg.append(Table(table, dal.metadata, autoload=True,
                               schema=schema))
 
@@ -318,7 +313,7 @@ class SgSeparation(IQuery):
             stm_join = stm_join.join(
                 table, t_obj_selection.c.coadd_objects_id ==
                 table.c.coadd_objects_id)
-            col = getattr(table.c, '%s' % values['ref_band'])
+            col = getattr(table.c, '%s' % params['ref_band'])
             _where.append(col == literal_column('0'))
 
         stm = select([t_obj_selection.c.coadd_objects_id]).\
@@ -331,15 +326,13 @@ class PhotoZ(IQuery):
     QUERY = 'photoz'
 
     def get_statement(self, params, sub_operations):
-        key, values = list(params.items())[0]
-
-        schema = values['schema'] if 'schema' in values else None
-        sub_op = sub_operations['sub_op'].values()[0]
+        schema = params['schema'] if 'schema' in params else None
+        sub_op = sub_operations.values()[0]
 
         # load tables.
         t_sub_op = Table(sub_op.save_at(), dal.metadata, autoload=True)
         t_pz = []
-        for table in values['tables_zp']:
+        for table in params['tables_zp']:
             t_pz.append(Table(table, dal.metadata, autoload=True,
                               schema=schema))
 
@@ -350,8 +343,8 @@ class PhotoZ(IQuery):
             stm_join = stm_join.join(
                 table, t_sub_op.c.coadd_objects_id ==
                 table.c.coadd_objects_id)
-            _where.append(and_(table.c.z_best > values['zmin'],
-                               table.c.z_best < values['zmax']))
+            _where.append(and_(table.c.z_best > params['zmin'],
+                               table.c.z_best < params['zmax']))
 
         stm = select([t_sub_op.c.coadd_objects_id]).\
             select_from(stm_join).where(and_(*_where))
@@ -363,15 +356,13 @@ class GalaxyProperties(IQuery):
     QUERY = 'galaxy_properties'
 
     def get_statement(self, params, sub_operations):
-        key, values = list(params.items())[0]
-
-        schema = values['schema'] if 'schema' in values else None
-        sub_op = sub_operations['sub_op'].values()[0]
+        schema = params['schema'] if 'schema' in params else None
+        sub_op = sub_operations.values()[0]
 
         # load tables.
         t_sub_op = Table(sub_op.save_at(), dal.metadata, autoload=True)
         t_gp = []
-        for table in values['tables_gp']:
+        for table in params['tables_gp']:
             t_gp.append(Table(table, dal.metadata, autoload=True,
                               schema=schema))
 

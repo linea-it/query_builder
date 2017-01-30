@@ -55,13 +55,10 @@ class CombinedMaps(IQuery):
     QUERY = 'join'
 
     def get_statement(self, params, sub_operations):
-        sub_op_names = list(params[list(params.keys())[0]]['sub_op'].keys())
-
         # load tables.
-        key, value = list(params.items())[0]
         sub_tables = []
-        for table in sub_op_names:
-            sub_tables.append(Table(sub_operations['sub_op'][table].save_at(),
+        for table in sub_operations['sub_op'].values():
+            sub_tables.append(Table(table.save_at(),
                                     dal.metadata, autoload=True))
 
         # join statement
@@ -162,11 +159,10 @@ class ObjectSelection(IQuery):
         sub_op_names = list(values['sub_op'].keys())
 
         schema = values['schema'] if 'schema' in values else None
-        footprint_op = sub_operations['sub_op']['footprint']
 
         # load tables.
-        t_footprint = Table(footprint_op.save_at(), dal.metadata,
-                            autoload=True)
+        t_footprint = Table(sub_operations['sub_op']['footprint'].save_at(),
+                            dal.metadata, autoload=True)
         t_coadd = Table(values['table_coadd_objects'],
                         dal.metadata, autoload=True, schema=schema)
         t_objects_ring = Table(values['table_coadd_objects_ring'],
@@ -313,11 +309,9 @@ class SgSeparation(IQuery):
         key, values = list(params.items())[0]
 
         schema = values['schema'] if 'schema' in values else None
-        obj_selection_op = sub_operations['sub_op']['object_selection']
-
         # load tables.
-        t_obj_selection = Table(obj_selection_op.save_at(), dal.metadata,
-                                autoload=True)
+        t_obj_selection = Table(sub_operations['sub_op']['object_selection'].\
+                                save_at(), dal.metadata, autoload=True)
         t_sg = []
         for table in values['tables_sg']:
             t_sg.append(Table(table, dal.metadata, autoload=True,

@@ -22,7 +22,12 @@ class Operation():
 
         # create temp table to let the data accessible.
         self.create()
-        self.data_table = self._access_data_table()
+
+        with dal.engine.connect() as con:
+            table = Table(self.save_at(), dal.metadata, autoload=True)
+            self._columns = table.c
+            stmt = select([table])
+            self._data_table = con.execute(stmt).fetchall()
 
     def __str__(self):
         return (str(self._query))
@@ -39,15 +44,11 @@ class Operation():
             con.execute(op.CreateTableAs(self.save_at(),
                         self._query))
 
-    def _access_data_table(self):
-        with dal.engine.connect() as con:
-            table = Table(self.save_at(), dal.metadata, autoload=True)
-            stmt = select([table])
-            result = con.execute(stmt).fetchall()
-        return result
-
     def access_data_table(self):
-        return self.data_table
+        return self._data_table
+
+    def columns_name(self):
+        return self._columns
 
     def delete(self):
         with dal.engine.connect() as con:

@@ -17,7 +17,7 @@ class Operation():
         self._sub_operations = sub_operations
 
         # get query
-        obj = queries.QueryBuilder().create(list(params.values())[0]['op'])
+        obj = queries.QueryBuilder().create(params['op'])
         self._query = obj.get_statement(params, sub_operations)
 
         # create temp table to let the data accessible.
@@ -33,7 +33,7 @@ class Operation():
         return (str(self._query))
 
     def operation_name(self):
-        return list(self._params.keys())[0]
+        return self._params['name']
 
     def save_at(self):
         return self.operation_name() + "_" + "table"
@@ -57,33 +57,19 @@ class Operation():
 
 
 class OperationsBuilder():
-    def __init__(self, data):
+    def __init__(self, tree):
         self.operations = OrderedDict()
-        self.dfs_pre_order(data['operations'])
+        self.traverse_post_order(tree)
 
-    def dfs_pre_order(self, node):
-        if 'sub_op' in node:
-            sub_node, sub_node_obj = self.dfs_pre_order(node['sub_op'])
-            new_tree = {'sub_op': sub_node}
-            new_tree_obj = {'sub_op': sub_node_obj}
-            return new_tree, new_tree_obj
+    def traverse_post_order(self, node):
+        sub_operations = {}
+        for sub_node in node.sub_nodes:
+            sub_node, sub_obj_op = self.traverse_post_order(sub_node)
+            sub_operations[sub_node.data['name']] = sub_obj_op
 
-        if 'op' in node:
-            return node, None
-
-        else:
-            new_tree = {}
-            new_tree_obj = {}
-            for key in node.keys():
-                sub_node, sub_node_obj = self.dfs_pre_order(node[key])
-
-                new_tree[key] = sub_node
-                obj_op = Operation({key: node[key]}, sub_node_obj)
-                new_tree_obj[key] = obj_op
-
-                # review
-                self.operations[key] = obj_op
-            return new_tree, new_tree_obj
+        obj_op = Operation(node.data, sub_operations)
+        self.operations[node.data['name']] = obj_op
+        return node, obj_op
 
     def get(self):
         return self.operations
@@ -91,10 +77,3 @@ class OperationsBuilder():
     def drop_all_tables(self):
         for op in self.operations.values():
             op.delete()
-
-    @staticmethod
-    def json_to_ordered_dict(file_path):
-        data = {}
-        with open(file_path) as data_file:
-            data = json.load(data_file, object_pairs_hook=OrderedDict)
-        return data

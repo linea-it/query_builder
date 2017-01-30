@@ -41,13 +41,11 @@ class GreatEqual(IQuery):
     QUERY = "great_equal"
 
     def get_statement(self, params, sub_operations):
-        key, value = list(params.items())[0]
-
-        schema = value['schema'] if 'schema' in value else None
-        table = Table(value['db'], dal.metadata, autoload=True,
+        schema = params['schema'] if 'schema' in params else None
+        table = Table(params['db'], dal.metadata, autoload=True,
                       schema=schema)
         stm = select(
-          [table]).where(table.c.signal >= literal_column(value['value']))
+          [table]).where(table.c.signal >= literal_column(params['value']))
         return stm
 
 
@@ -57,7 +55,7 @@ class CombinedMaps(IQuery):
     def get_statement(self, params, sub_operations):
         # load tables.
         sub_tables = []
-        for table in sub_operations['sub_op'].values():
+        for table in sub_operations.values():
             sub_tables.append(Table(table.save_at(),
                                     dal.metadata, autoload=True))
 
@@ -80,14 +78,12 @@ class BadRegions(IQuery):
     QUERY = "bad_regions"
 
     def get_statement(self, params, sub_operations):
-        key, value = list(params.items())[0]
-
-        schema = value['schema'] if 'schema' in value else None
-        table = Table(value['db'], dal.metadata, autoload=True,
+        schema = params['schema'] if 'schema' in params else None
+        table = Table(params['db'], dal.metadata, autoload=True,
                       schema=schema)
         stm = select([table]).where(sql_operations.BitwiseAnd(
                                     cast(table.c.signal, Integer),
-                                    literal_column(value['value'])) >
+                                    literal_column(params['value'])) >
                                     literal_column('0'))
         return stm
 
@@ -104,7 +100,7 @@ class Footprint(IQuery):
 
         # divide operations accordingly
         if sub_operations:
-            for k, v in list(sub_operations['sub_op'].items()):
+            for k, v in list(sub_operations.items()):
                 if k in inner_join:
                     inner_join_ops.append(v)
                 elif k in left_join:
@@ -113,10 +109,8 @@ class Footprint(IQuery):
                     raise("operations does not exist.")
 
         # load tables.
-        key, value = list(params.items())[0]
-
-        schema = value['schema'] if 'schema' in value else None
-        table_footprint = Table(list(params.values())[0]['db'], dal.metadata,
+        schema = params['schema'] if 'schema' in params else None
+        table_footprint = Table(params['db'], dal.metadata,
                                 autoload=True, schema=schema)
         sub_tables_inner = []
         for table in inner_join_ops:

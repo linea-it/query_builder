@@ -1,17 +1,15 @@
 {
-  "operations": {
-    "footprint": {
-      "db": "footprint_db",
-      "op": "footprint",
-      "description": "footprint description",
-      "sub_op": {
-        "bad_regions": {
-          "db": "bad_regions_map",
-          "op": "bad_regions",
-          "value": "1"
-        }
-      }
+  "name": "footprint",
+  "db": "footprint_db",
+  "op": "footprint",
+  "description": "footprint description",
+  "sub_op": [
+    {
+      "name": "bad_regions",
+      "db": "bad_regions_map",
+      "op": "bad_regions",
+      "value": "1"
     }
-  }
+  ]
 }
 

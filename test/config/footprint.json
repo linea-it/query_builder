@@ -1,11 +1,8 @@
 {
-  "operations": {
-    "footprint": {
-      "db": "footprint_db",
-      "op": "footprint",
-      "description": "footprint description"
-    }
-  }
+  "name": "footprint",
+  "db": "footprint_db",
+  "op": "footprint",
+  "description": "footprint description"
 }
 
 

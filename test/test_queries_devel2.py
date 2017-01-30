@@ -3,7 +3,9 @@ from mock import patch, Mock
 
 from utils.db import dal, DataAccessLayer
 
-from model import operations as ops
+from model.operations import OperationsBuilder
+import model.tree as t
+import main
 
 
 class test_operations(unittest.TestCase):
@@ -21,8 +23,9 @@ class test_operations(unittest.TestCase):
     @staticmethod
     def get_operations(file_name):
         path = test_operations.base_path + file_name
-        return ops.OperationsBuilder(
-            ops.OperationsBuilder.json_to_ordered_dict(path))
+        obj = main.load_json(path)
+        tree = t.tree_builder(obj)
+        return OperationsBuilder(tree)
 
     def setUp(self):
         self.operations = None

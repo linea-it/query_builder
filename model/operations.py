@@ -1,6 +1,7 @@
 import os
 import json
 from collections import OrderedDict
+from multiprocessing.dummy import Pool as ThreadPool
 
 from sqlalchemy.sql import select
 from sqlalchemy import Table
@@ -57,15 +58,20 @@ class Operation():
 
 
 class OperationsBuilder():
-    def __init__(self, tree):
+    def __init__(self, tree, thread_pools=1):
+        self.thread_pools = thread_pools
         self.operations = OrderedDict()
         self.traverse_post_order(tree)
 
     def traverse_post_order(self, node):
         sub_operations = {}
-        for sub_node in node.sub_nodes:
-            sub_node, sub_obj_op = self.traverse_post_order(sub_node)
-            sub_operations[sub_node.data['name']] = sub_obj_op
+        if node.sub_nodes:
+            pool = ThreadPool(self.thread_pools)
+            results = pool.map(self.traverse_post_order, node.sub_nodes)
+            pool.close()
+            pool.join()
+            for result in results:
+                sub_operations[result[0].data['name']] = result[1]
 
         obj_op = Operation(node.data, sub_operations)
         self.operations[node.data['name']] = obj_op

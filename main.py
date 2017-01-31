@@ -20,12 +20,12 @@ if __name__ == "__main__":
 
     print(tree)
 
-    builder = OperationsBuilder(tree)
+    builder = OperationsBuilder(tree, thread_pools=10)
     operations = builder.get()
     # traverse_post_order(tree)
 
     for k, v in operations.items():
         print(k)
         print(str(v))
-        print(v.access_data_table())
+        # print(v.access_data_table())
         print(v.columns_name())

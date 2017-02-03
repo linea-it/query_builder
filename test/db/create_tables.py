@@ -7,9 +7,8 @@ import os
 import sys
 
 # PYTHONPATH=<base_project_dir> python file.py
-from utils import db_connection
 import settings
-from utils.db import dal, str_connection
+from utils.db import dal, DataAccessLayer
 
 
 def _template_create(table, data):
@@ -123,7 +122,9 @@ def delete_all_tables():
 
 
 if __name__ == '__main__':
-    dal.db_init(str_connection())
+    db = settings.DATABASES[settings.DATABASE]
+    dal.db_init(DataAccessLayer.str_connection(db))
+
     print ("Creating systematic maps")
     systematic_maps()
     print ("Creating systematic maps 2")

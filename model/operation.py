@@ -1,15 +1,18 @@
-import os
-import json
-from collections import OrderedDict
-from multiprocessing.dummy import Pool as ThreadPool
-
 from sqlalchemy.sql import select
 from sqlalchemy import Table
 
-from model import queries
+from model import query_builder
 from model import sql_operations as op
 
 from utils.db import dal
+
+
+"""
+    This class provides common methods to manipulate queries. The query
+itself, is defined in the class queries and the Factory class QueryBulder -see
+model.query_builder- creates the operation accordingly the params['op']
+variable.
+"""
 
 
 class Operation():
@@ -18,12 +21,11 @@ class Operation():
         self._sub_operations = sub_operations
 
         # get query
-        obj = queries.QueryBuilder().create(params['op'])
+        obj = query_builder.QueryBuilder().create(params['op'])
         self._query = obj.get_statement(params, sub_operations)
 
         # create temp table to let the data accessible.
         self.create()
-
         with dal.engine.connect() as con:
             table = Table(self.save_at(), dal.metadata, autoload=True)
             self._columns = table.c
@@ -55,31 +57,3 @@ class Operation():
         with dal.engine.connect() as con:
             con.execute("commit")
             con.execute(op.DropTable(self.save_at()))
-
-
-class OperationsBuilder():
-    def __init__(self, tree, thread_pools=1):
-        self.thread_pools = thread_pools
-        self.operations = OrderedDict()
-        self.traverse_post_order(tree)
-
-    def traverse_post_order(self, node):
-        sub_operations = {}
-        if node.sub_nodes:
-            pool = ThreadPool(self.thread_pools)
-            results = pool.map(self.traverse_post_order, node.sub_nodes)
-            pool.close()
-            pool.join()
-            for result in results:
-                sub_operations[result[0].data['name']] = result[1]
-
-        obj_op = Operation(node.data, sub_operations)
-        self.operations[node.data['name']] = obj_op
-        return node, obj_op
-
-    def get(self):
-        return self.operations
-
-    def drop_all_tables(self):
-        for op in self.operations.values():
-            op.delete()

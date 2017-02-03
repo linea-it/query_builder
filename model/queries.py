@@ -7,34 +7,25 @@ from utils.db import dal
 from model import sql_operations
 
 
+"""
+    When a new query must be written, we basically heritage the IQuery
+class and override the method get_statement.
+"""
+
+
 class IQuery():
+    """
+    Abstract class that defines the interface to create new queries.
+    """
     def get_statement(self, params, sub_operations):
+        """
+        This method defines the query. *args:
+        params - a dictionary that has specific information about the query.
+        sub_operations - It has a list of operations in which this new query
+        depends.
+        It must return a SQLAlchemy select statement.
+        """
         raise NotImplementedError("Implement this method")
-
-
-class QueryBuilder():
-    @staticmethod
-    def create(operation_type):
-        if operation_type == GreatEqual.QUERY:
-            query = GreatEqual()
-        elif operation_type == CombinedMaps.QUERY:
-            query = CombinedMaps()
-        elif operation_type == BadRegions.QUERY:
-            query = BadRegions()
-        elif operation_type == Footprint.QUERY:
-            query = Footprint()
-        elif operation_type == ObjectSelection.QUERY:
-            query = ObjectSelection()
-        elif operation_type == SgSeparation.QUERY:
-            query = SgSeparation()
-        elif operation_type == PhotoZ.QUERY:
-            query = PhotoZ()
-        elif operation_type == GalaxyProperties.QUERY:
-            query = GalaxyProperties()
-        else:
-            raise "This query is not implemented."
-
-        return query
 
 
 class GreatEqual(IQuery):

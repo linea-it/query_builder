@@ -7,7 +7,16 @@ from sqlalchemy.dialects import oracle
 from sqlalchemy.sql.expression import literal_column
 
 
+"""
+    Some Sql operations are written differently based on the backend used. So,
+the classes above give support for this cases.
+"""
+
+
 class BitwiseAnd(ColumnElement):
+    """
+    Bitwise and operation.
+    """
     type = Integer()
     operator = custom_op("&", precedence=6)
 
@@ -39,6 +48,9 @@ def _compile_bitwise_and_oracle(element, compiler, **kwargs):
 
 
 class CreateTableAs(Executable, ClauseElement):
+    """
+    Creates a new table in the database using a query result.
+    """
     def __init__(self, name, query):
         self.name = name
         self.query = query
@@ -53,6 +65,9 @@ def _create_table_as(element, compiler, **kw):
 
 
 class DropTable(Executable, ClauseElement):
+    """
+    Drop a table in the database.
+    """
     def __init__(self, name):
         self.name = name
 

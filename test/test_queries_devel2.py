@@ -3,7 +3,7 @@ from mock import patch, Mock
 
 from utils.db import dal, DataAccessLayer
 
-from model.operations import OperationsBuilder
+from model.operations_builder import OperationsBuilder
 import model.tree as t
 import main
 

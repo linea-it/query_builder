@@ -3,11 +3,15 @@ from sqlalchemy import (MetaData, create_engine, Table)
 import settings
 
 
+"""
+    Access to the database and metadata through a singleton.
+"""
+
+
 class DataAccessLayer():
     def __init__(self):
         self.engine = None
         self.metadata = MetaData()
-        self.tables = {}
 
     def db_init(self, con_string):
         self.engine = create_engine(con_string)
@@ -16,6 +20,9 @@ class DataAccessLayer():
 
     @staticmethod
     def str_connection(db):
+        """
+        Builds string connection.
+        """
         str_con = db['dialect']
         if 'driver' in db:
             str_con += '+' + db['driver']

@@ -1,12 +1,11 @@
 """
-    It has the data_structure Node and methods to facilitate the creation of
-trees.
+It has the data_structure Node and methods to facilitate the creation of trees.
 """
 
 
 class Node(object):
     """
-        It represents the basic data structure of a tree.
+    It represents the basic data structure of a tree.
     """
     def __init__(self, data=None, level=0):
         self.data = data

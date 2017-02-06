@@ -8,8 +8,7 @@ from model import sql_operations
 
 
 """
-    When a new query must be written, we basically heritage the IQuery
-class and override the method get_statement.
+When a new query must be written, we basically heritage the IQuery class and override the method get_statement.
 """
 
 

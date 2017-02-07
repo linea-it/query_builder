@@ -26,11 +26,12 @@ class Operation():
 
         # create temp table to let the data accessible.
         self.create()
-        with dal.engine.connect() as con:
-            table = Table(self.save_at(), dal.metadata, autoload=True)
-            self._columns = table.c
-            stmt = select([table])
-            self._data_table = con.execute(stmt).fetchall()
+        # with dal.engine.connect() as con:
+        #     table = Table(self.save_at(), dal.metadata,
+        #                   autoload=True, schema=dal.schema_output)
+        #     self._columns = table.c
+        #     stmt = select([table])
+        #     self._data_table = con.execute(stmt).fetchall()
 
     def __str__(self):
         return (str(self._query))
@@ -44,8 +45,8 @@ class Operation():
     def create(self):
         with dal.engine.connect() as con:
             con.execute("commit")
-            con.execute(op.CreateTableAs(self.save_at(),
-                        self._query))
+            con.execute(op.CreateTableAs(dal.schema_output,
+                        self.save_at(), self._query))
 
     def access_data_table(self):
         return self._data_table
@@ -56,4 +57,4 @@ class Operation():
     def delete(self):
         with dal.engine.connect() as con:
             con.execute("commit")
-            con.execute(op.DropTable(self.save_at()))
+            con.execute(op.DropTable(dal.schema_output, self.save_at()))

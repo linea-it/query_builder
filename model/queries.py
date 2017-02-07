@@ -8,7 +8,8 @@ from model import sql_operations
 
 
 """
-When a new query must be written, we basically heritage the IQuery class and override the method get_statement.
+When a new query must be written, we basically heritage the IQuery class and
+override the method get_statement.
 """
 
 
@@ -31,9 +32,8 @@ class GreatEqual(IQuery):
     QUERY = "great_equal"
 
     def get_statement(self, params, sub_operations):
-        schema = params['schema'] if 'schema' in params else None
         table = Table(params['db'], dal.metadata, autoload=True,
-                      schema=schema)
+                      schema=dal.schema_input)
         stm = select(
           [table]).where(table.c.signal >= literal_column(params['value']))
         return stm
@@ -46,8 +46,8 @@ class CombinedMaps(IQuery):
         # load tables.
         sub_tables = []
         for table in sub_operations.values():
-            sub_tables.append(Table(table.save_at(),
-                                    dal.metadata, autoload=True))
+            sub_tables.append(Table(table.save_at(), dal.metadata,
+                                    schema=dal.schema_output, autoload=True))
 
         # join statement
         stm = select([sub_tables[0]])
@@ -68,9 +68,8 @@ class BadRegions(IQuery):
     QUERY = "bad_regions"
 
     def get_statement(self, params, sub_operations):
-        schema = params['schema'] if 'schema' in params else None
         table = Table(params['db'], dal.metadata, autoload=True,
-                      schema=schema)
+                      schema=dal.schema_input)
         stm = select([table]).where(sql_operations.BitwiseAnd(
                                     cast(table.c.signal, Integer),
                                     literal_column(params['value'])) >
@@ -99,17 +98,17 @@ class Footprint(IQuery):
                     raise("operations does not exist.")
 
         # load tables.
-        schema = params['schema'] if 'schema' in params else None
+        # review from data.
         table_footprint = Table(params['db'], dal.metadata,
-                                autoload=True, schema=schema)
+                                autoload=True, schema=dal.schema_input)
         sub_tables_inner = []
         for table in inner_join_ops:
             sub_tables_inner.append(Table(table.save_at(), dal.metadata,
-                                    autoload=True))
+                                    autoload=True, schema=dal.schema_output))
         sub_tables_left = []
         for table in left_join_ops:
             sub_tables_left.append(Table(table.save_at(), dal.metadata,
-                                   autoload=True))
+                                   autoload=True, schema=dal.schema_output))
 
         stm = select([table_footprint])
 
@@ -139,15 +138,15 @@ class ObjectSelection(IQuery):
     BANDS = ['g', 'r', 'i', 'z', 'y']
 
     def get_statement(self, params, sub_operations):
-        schema = params['schema'] if 'schema' in params else None
-
         # load tables.
         t_footprint = Table(sub_operations['footprint'].save_at(),
-                            dal.metadata, autoload=True)
-        t_coadd = Table(params['table_coadd_objects'],
-                        dal.metadata, autoload=True, schema=schema)
+                            dal.metadata, autoload=True,
+                            schema=dal.schema_output)
+        t_coadd = Table(params['table_coadd_objects'], dal.metadata,
+                        autoload=True, schema=dal.schema_input)
         t_objects_ring = Table(params['table_coadd_objects_ring'],
-                               dal.metadata, autoload=True, schema=schema)
+                               dal.metadata, autoload=True,
+                               schema=dal.schema_input)
 
         # join statement
         stm_join = t_footprint
@@ -162,9 +161,10 @@ class ObjectSelection(IQuery):
         alias_table = None
         if 'mangle_bitmask' in params:
             t_coadd_molygon = Table(params['table_coadd_objects_molygon'],
-                                    dal.metadata, autoload=True, schema=schema)
-            t_molygon = Table(params['table_molygon'],
-                              dal.metadata, autoload=True, schema=schema)
+                                    dal.metadata, autoload=True,
+                                    schema=dal.schema_input)
+            t_molygon = Table(params['table_molygon'], dal.metadata,
+                              autoload=True, schema=dal.schema_input)
 
             stm_join = stm_join.join(t_coadd_molygon,
                                      t_coadd.c.coadd_objects_id ==
@@ -287,14 +287,14 @@ class SgSeparation(IQuery):
     QUERY = 'sg_separation'
 
     def get_statement(self, params, sub_operations):
-        schema = params['schema'] if 'schema' in params else None
         # load tables.
         t_obj_selection = Table(sub_operations['object_selection'].save_at(),
-                                dal.metadata, autoload=True)
+                                dal.metadata, autoload=True,
+                                schema=dal.schema_output)
         t_sg = []
         for table in params['tables_sg']:
             t_sg.append(Table(table, dal.metadata, autoload=True,
-                              schema=schema))
+                              schema=dal.schema_input))
 
         _where = []
         # join statement
@@ -316,15 +316,15 @@ class PhotoZ(IQuery):
     QUERY = 'photoz'
 
     def get_statement(self, params, sub_operations):
-        schema = params['schema'] if 'schema' in params else None
         sub_op = sub_operations.values()[0]
 
         # load tables.
-        t_sub_op = Table(sub_op.save_at(), dal.metadata, autoload=True)
+        t_sub_op = Table(sub_op.save_at(), dal.metadata, autoload=True,
+                         schema=dal.schema_output)
         t_pz = []
         for table in params['tables_zp']:
             t_pz.append(Table(table, dal.metadata, autoload=True,
-                              schema=schema))
+                              schema=dal.schema_input))
 
         _where = []
         # join statement
@@ -346,15 +346,15 @@ class GalaxyProperties(IQuery):
     QUERY = 'galaxy_properties'
 
     def get_statement(self, params, sub_operations):
-        schema = params['schema'] if 'schema' in params else None
         sub_op = sub_operations.values()[0]
 
         # load tables.
-        t_sub_op = Table(sub_op.save_at(), dal.metadata, autoload=True)
+        t_sub_op = Table(sub_op.save_at(), dal.metadata, autoload=True,
+                         schema=dal.schema_output)
         t_gp = []
         for table in params['tables_gp']:
             t_gp.append(Table(table, dal.metadata, autoload=True,
-                              schema=schema))
+                              schema=dal.schema_input))
 
         # join statement
         stm_join = t_sub_op

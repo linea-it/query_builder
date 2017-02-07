@@ -51,14 +51,17 @@ class CreateTableAs(Executable, ClauseElement):
     """
     Creates a new table in the database using a query result.
     """
-    def __init__(self, name, query):
+    def __init__(self, schema, name, query):
+        self.schema = schema
         self.name = name
         self.query = query
 
 
 @compiles(CreateTableAs)
 def _create_table_as(element, compiler, **kw):
-    return "CREATE TABLE %s AS (%s)" % (
+    _schema = "%s." % element.schema if element.schema is not None else ''
+    return "CREATE TABLE %s%s AS (%s)" % (
+        _schema,
         element.name,
         compiler.process(element.query)
     )
@@ -68,15 +71,17 @@ class DropTable(Executable, ClauseElement):
     """
     Drop a table in the database.
     """
-    def __init__(self, name):
+    def __init__(self, schema, name):
+        self.schema = schema
         self.name = name
 
 
 @compiles(DropTable, "postgresql")
 def _drop_table(element, compiler, **kw):
-    return "DROP TABLE %s" % (element.name)
+    _schema = "%s." % element.schema if element.schema is not None else ''
+    return "DROP TABLE %s%s" % (_schema, element.name)
 
 
-@compiles(DropTable, "oracle")
-def _drop_table(element, compiler, **kw):
-    return "DROP TABLE %s PURGE" % (element.name)
+# @compiles(DropTable, "oracle")
+# def _drop_table(element, compiler, **kw):
+#     return "DROP TABLE %s PURGE" % (element.name)

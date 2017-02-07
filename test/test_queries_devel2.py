@@ -12,12 +12,15 @@ class test_operations(unittest.TestCase):
     db = {
         'dialect': 'postgresql',
         'driver': 'psycopg2',
-        'username': 'gavo',
-        'password': 'gavo',
+        'username': 'postgres',
+        'password': 'tet123456',
         'host': 'localhost',
-        'port': '25432',
+        'port': '5432',
+        'database': 'query_builder'
     }
-    dal.db_init(DataAccessLayer.str_connection(db))
+    dal.db_init(DataAccessLayer.str_connection(db),
+                schema_input='tst_oracle_input',
+                schema_output='tst_oracle_output')
     base_path = "test/config_devel2/"
 
     @staticmethod
@@ -48,6 +51,10 @@ class test_operations(unittest.TestCase):
     def test_op_photoz(self):
         self.operations = test_operations.get_operations(
                 'photoz.json')
+
+    def test_op_galaxy_properties(self):
+        self.operations = test_operations.get_operations(
+                'galaxy_properties.json')
 
     def tearDown(self):
         self.operations.drop_all_tables()

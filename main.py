@@ -13,7 +13,9 @@ def load_json(filename):
 
 if __name__ == "__main__":
     db = settings.DATABASES[settings.DATABASE]
-    dal.db_init(DataAccessLayer.str_connection(db))
+    dal.db_init(DataAccessLayer.str_connection(db),
+                schema_input=settings.SCHEMA_INPUT,
+                schema_output=settings.SCHEMA_OUTPUT)
 
     obj = load_json(settings.OPERATIONS_FILE)
     tree = t.tree_builder(obj)

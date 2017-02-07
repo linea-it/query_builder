@@ -12,8 +12,13 @@ class DataAccessLayer():
     def __init__(self):
         self.engine = None
         self.metadata = MetaData()
+        self.schema_output = None
+        self.schema_input = None
 
-    def db_init(self, con_string):
+    def db_init(self, con_string, schema_input=None,
+                schema_output=None):
+        self.schema_output = schema_output
+        self.schema_input = schema_input
         self.engine = create_engine(con_string)
         with self.engine.connect() as con:
             self.metadata = MetaData(self.engine)

@@ -1,4 +1,8 @@
-OPERATIONS_FILE = 'test/config_devel2/galaxy_properties.json'
+# OPERATIONS_FILE = 'test/config_devel2/galaxy_properties.json'
+OPERATIONS_FILE = 'test/config_devel2/footprint_inner_left.json'
+
+SCHEMA_OUTPUT = 'tst_oracle_output'
+SCHEMA_INPUT = 'tst_oracle_input'
 
 DATABASE = 'devel2'
 DATABASES = {

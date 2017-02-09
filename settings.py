@@ -1,10 +1,10 @@
 # OPERATIONS_FILE = 'test/config_devel2/galaxy_properties.json'
-OPERATIONS_FILE = 'test/config_devel2/footprint_inner_left.json'
+OPERATIONS_FILE = 'test/config_y1a1_subset/footprint_inner_left.json'
 
 SCHEMA_OUTPUT = 'tst_oracle_output'
 SCHEMA_INPUT = 'tst_oracle_input'
 
-DATABASE = 'devel2'
+DATABASE = 'y1a1_subset'
 DATABASES = {
     'local':  {
         'dialect': 'postgresql',
@@ -15,13 +15,14 @@ DATABASES = {
         'port': '5432',
         'database': 'db_sql_alchemy',
      },
-    'devel2':  {
+    'y1a1_subset':  {
         'dialect': 'postgresql',
         'driver': 'psycopg2',
-        'username': 'gavo',
-        'password': 'gavo',
+        'username': 'postgres',
+        'password': 'tet123456',
         'host': 'localhost',
-        'port': '25432',
+        'port': '5432',
+        'database': 'query_builder',
      },
     'oracle':  {
         'dialect': 'oracle',

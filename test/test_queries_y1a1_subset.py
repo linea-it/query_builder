@@ -21,7 +21,7 @@ class test_operations(unittest.TestCase):
     dal.db_init(DataAccessLayer.str_connection(db),
                 schema_input='tst_oracle_input',
                 schema_output='tst_oracle_output')
-    base_path = "test/config_devel2/"
+    base_path = "test/config_y1a1_subset/"
 
     @staticmethod
     def get_operations(file_name):

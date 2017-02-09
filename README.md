@@ -24,17 +24,22 @@ So, given a input JSON file and all the queries descriptions, all the operations
   CREATE DATABASE query_builder
 ```
 
-4. download testing data and import in the database - sub_set_y1a1.sql has a set of data from y1a1_coadd_cosmos_d04 and others pypelines.
+4. create schema to save the results
+```
+  CREATE SCHEMA tst_oracle_output
+```
+
+5. download testing data and import in the database - sub_set_y1a1.sql has a set of data from y1a1_coadd_cosmos_d04 and others pypelines.
 ```
   download sub_set_y1a1.sql from http://devel2.linea.gov.br/~lucas.nunes/
 ```
 
-5. import data in local database
+6. import data in local database
 ```
   psql -U postgres query_builder < sub_set_y1a1.sql
 ```
 
-6. execute tests (optional)
+7. execute tests (optional)
 ```
-  PYTHONPATH=. python test/test_queries_devel2.py
+  PYTHONPATH=. python test/test_queries_y1ay_subset.py
 ```

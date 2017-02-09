@@ -31,3 +31,4 @@ if __name__ == "__main__":
         print(str(v))
         # print(v.access_data_table())
         print(v.columns_name())
+        print(v.number_of_rows())

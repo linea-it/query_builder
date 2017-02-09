@@ -1,5 +1,5 @@
 from sqlalchemy.sql import select
-from sqlalchemy import Table
+from sqlalchemy import Table, func, select
 
 from model import query_builder
 from model import sql_operations as op
@@ -26,10 +26,12 @@ class Operation():
 
         # create temp table to let the data accessible.
         self.create()
-        # with dal.engine.connect() as con:
-        #     table = Table(self.save_at(), dal.metadata,
-        #                   autoload=True, schema=dal.schema_output)
-        #     self._columns = table.c
+        with dal.engine.connect() as con:
+            table = Table(self.save_at(), dal.metadata,
+                          autoload=True, schema=dal.schema_output)
+            self._columns = table.c
+            self._number_of_rows = con.execute(
+                    select([func.count()]).select_from(table)).scalar()
         #     stmt = select([table])
         #     self._data_table = con.execute(stmt).fetchall()
 
@@ -58,3 +60,6 @@ class Operation():
         with dal.engine.connect() as con:
             con.execute("commit")
             con.execute(op.DropTable(dal.schema_output, self.save_at()))
+
+    def number_of_rows(self):
+        return self._number_of_rows

@@ -1,7 +1,7 @@
 import json
 from utils.db import dal, DataAccessLayer
 
-from model.operations_builder import OperationsBuilder
+from model.query_builder import QueryBuilder
 import model.tree as t
 
 import settings
@@ -22,7 +22,7 @@ if __name__ == "__main__":
 
     print(tree)
 
-    builder = OperationsBuilder(tree, thread_pools=10)
+    builder = QueryBuilder(tree, thread_pools=10)
     operations = builder.get()
     # traverse_post_order(tree)
 

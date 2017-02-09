@@ -1,7 +1,7 @@
 from sqlalchemy.sql import select
 from sqlalchemy import Table, func, select
 
-from model import query_builder
+from model import operation_builder
 from model import sql_operations as op
 
 from utils.db import dal
@@ -15,14 +15,14 @@ variable.
 """
 
 
-class Operation():
+class IntermediateTable():
     def __init__(self, params, sub_operations):
         self._params = params
         self._sub_operations = sub_operations
 
         # get query
-        obj = query_builder.QueryBuilder().create(params['op'])
-        self._query = obj.get_statement(params, sub_operations)
+        obj = operation_builder.OperationBuilder().create(params['op'])
+        self._operation = obj.get_statement(params, sub_operations)
 
         # create temp table to let the data accessible.
         self.create()
@@ -36,7 +36,7 @@ class Operation():
         #     self._data_table = con.execute(stmt).fetchall()
 
     def __str__(self):
-        return (str(self._query))
+        return (str(self._operation))
 
     def operation_name(self):
         return self._params['name']
@@ -48,7 +48,7 @@ class Operation():
         with dal.engine.connect() as con:
             con.execute("commit")
             con.execute(op.CreateTableAs(dal.schema_output,
-                        self.save_at(), self._query))
+                                         self.save_at(), self._operation))
 
     def access_data_table(self):
         return self._data_table

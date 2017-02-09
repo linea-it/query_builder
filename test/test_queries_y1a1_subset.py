@@ -3,7 +3,7 @@ from mock import patch, Mock
 
 from utils.db import dal, DataAccessLayer
 
-from model.operations_builder import OperationsBuilder
+from model.query_builder import QueryBuilder
 import model.tree as t
 import main
 
@@ -28,7 +28,7 @@ class test_operations(unittest.TestCase):
         path = test_operations.base_path + file_name
         obj = main.load_json(path)
         tree = t.tree_builder(obj)
-        return OperationsBuilder(tree)
+        return QueryBuilder(tree)
 
     def setUp(self):
         self.operations = None

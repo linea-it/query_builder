@@ -13,7 +13,7 @@ override the method get_statement.
 """
 
 
-class IQuery():
+class IOperation():
     """
     Abstract class that defines the interface to create new queries.
     """
@@ -28,8 +28,8 @@ class IQuery():
         raise NotImplementedError("Implement this method")
 
 
-class GreatEqual(IQuery):
-    QUERY = "great_equal"
+class GreatEqual(IOperation):
+    OPERATION = "great_equal"
 
     def get_statement(self, params, sub_operations):
         table = Table(params['db'], dal.metadata, autoload=True,
@@ -39,8 +39,8 @@ class GreatEqual(IQuery):
         return stm
 
 
-class CombinedMaps(IQuery):
-    QUERY = 'join'
+class CombinedMaps(IOperation):
+    OPERATION = 'join'
 
     def get_statement(self, params, sub_operations):
         # load tables.
@@ -64,8 +64,8 @@ class CombinedMaps(IQuery):
         return stm
 
 
-class BadRegions(IQuery):
-    QUERY = "bad_regions"
+class BadRegions(IOperation):
+    OPERATION = "bad_regions"
 
     def get_statement(self, params, sub_operations):
         table = Table(params['db'], dal.metadata, autoload=True,
@@ -77,8 +77,8 @@ class BadRegions(IQuery):
         return stm
 
 
-class Footprint(IQuery):
-    QUERY = 'footprint'
+class Footprint(IOperation):
+    OPERATION = 'footprint'
 
     def get_statement(self, params, sub_operations):
         inner_join = ["exposure_time", "depth_map", "mangle_map"]
@@ -133,8 +133,8 @@ class Footprint(IQuery):
         return stm
 
 
-class ObjectSelection(IQuery):
-    QUERY = 'object_selection'
+class ObjectSelection(IOperation):
+    OPERATION = 'object_selection'
     BANDS = ['g', 'r', 'i', 'z', 'y']
 
     def get_statement(self, params, sub_operations):
@@ -283,8 +283,8 @@ class ObjectSelection(IQuery):
         return stm
 
 
-class SgSeparation(IQuery):
-    QUERY = 'sg_separation'
+class SgSeparation(IOperation):
+    OPERATION = 'sg_separation'
 
     def get_statement(self, params, sub_operations):
         # load tables.
@@ -312,8 +312,8 @@ class SgSeparation(IQuery):
         return stm
 
 
-class PhotoZ(IQuery):
-    QUERY = 'photoz'
+class PhotoZ(IOperation):
+    OPERATION = 'photoz'
 
     def get_statement(self, params, sub_operations):
         sub_op = sub_operations.values()[0]
@@ -342,8 +342,8 @@ class PhotoZ(IQuery):
         return stm
 
 
-class GalaxyProperties(IQuery):
-    QUERY = 'galaxy_properties'
+class GalaxyProperties(IOperation):
+    OPERATION = 'galaxy_properties'
 
     def get_statement(self, params, sub_operations):
         sub_op = sub_operations.values()[0]

@@ -1,31 +1,42 @@
-from model import queries
+from collections import OrderedDict
+from multiprocessing.dummy import Pool as ThreadPool
+
+from model import intermediate_table
 
 
 """
-    This is the Factory class to create new operations.
+    Receiving a tree of operations, this class builds all the operations,
+managing the construct in the right order and allowing parallelism.
 """
 
 
 class QueryBuilder():
-    @staticmethod
-    def create(operation_type):
-        if operation_type == queries.GreatEqual.QUERY:
-            query = queries.GreatEqual()
-        elif operation_type == queries.CombinedMaps.QUERY:
-            query = queries.CombinedMaps()
-        elif operation_type == queries.BadRegions.QUERY:
-            query = queries.BadRegions()
-        elif operation_type == queries.Footprint.QUERY:
-            query = queries.Footprint()
-        elif operation_type == queries.ObjectSelection.QUERY:
-            query = queries.ObjectSelection()
-        elif operation_type == queries.SgSeparation.QUERY:
-            query = queries.SgSeparation()
-        elif operation_type == queries.PhotoZ.QUERY:
-            query = queries.PhotoZ()
-        elif operation_type == queries.GalaxyProperties.QUERY:
-            query = queries.GalaxyProperties()
-        else:
-            raise "This query is not implemented."
+    def __init__(self, tree, thread_pools=1):
+        self.thread_pools = thread_pools
+        self.operations = OrderedDict()
+        self.traverse_post_order(tree)
 
-        return query
+    def traverse_post_order(self, node):
+        sub_operations = {}
+        if node.sub_nodes:
+            pool = ThreadPool(self.thread_pools)
+            results = pool.map(self.traverse_post_order, node.sub_nodes)
+            pool.close()
+            pool.join()
+            for result in results:
+                sub_operations[result[0].data['name']] = result[1]
+
+        obj_op = intermediate_table.IntermediateTable(node.data, sub_operations)
+        self.operations[node.data['name']] = obj_op
+        return node, obj_op
+
+    def get(self):
+        """
+        Returns all the operations through a ordereddict where the keys are
+        the operations name and the value is the operation.
+        """
+        return self.operations
+
+    def drop_all_tables(self):
+        for op in self.operations.values():
+            op.delete()

@@ -1,6 +1,5 @@
 {  
   "name":"footprint",
-  "schema":"tst_lucas_oracle",
   "db":"y1a1_coadd_cosmos_d04_4096_exptime_i_10023575",
   "op":"footprint",
   "description":"footprint description",
@@ -12,7 +11,6 @@
       "sub_op":[  
         {  
           "name":"exposure_time_i",
-          "schema":"tst_lucas_oracle",
           "db":"y1a1_coadd_cosmos_d04_4096_exptime_i_10023575",
           "op":"great_equal",
           "description":"exposure_time_i description",
@@ -21,7 +19,6 @@
         },
         {  
           "name":"exposure_time_r",
-          "schema":"tst_lucas_oracle",
           "db":"y1a1_coadd_cosmos_d04_4096_exptime_r_10023575",
           "op":"great_equal",
           "description":"exposure_time_r description",
@@ -30,7 +27,6 @@
         },
         {  
           "name":"exposure_time_z",
-          "schema":"tst_lucas_oracle",
           "db":"y1a1_coadd_cosmos_d04_4096_exptime_z_10023575",
           "op":"great_equal",
           "description":"exposure_time_z description",
@@ -46,7 +42,6 @@
       "sub_op":[  
         {  
           "name":"mangle_maps_i",
-          "schema":"tst_lucas_oracle",
           "db":"mangle_maps_4096_ring_frac_i_10024132",
           "op":"great_equal",
           "description":"depth_map description",
@@ -55,7 +50,6 @@
         },
         {  
           "name":"mangle_maps_r",
-          "schema":"tst_lucas_oracle",
           "db":"mangle_maps_4096_ring_frac_r_10024132",
           "op":"great_equal",
           "description":"exposure_time_r description",
@@ -66,7 +60,6 @@
     },
     {  
       "name":"bad_regions",
-      "schema":"tst_lucas_oracle",
       "db":"y1a1_coadd_cosmos_d04_bright_mask_4096_ring_10023572_sub_set",
       "op":"bad_regions",
       "value":"1"

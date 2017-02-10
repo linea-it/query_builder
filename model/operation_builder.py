@@ -3,6 +3,9 @@ from model import operations
 
 """
     This is the Factory class to create new operations.
+    
+    When a new operation is defined in models.opetations, we must add here the
+condition to create the apropriate class.
 """
 
 

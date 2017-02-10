@@ -6,7 +6,7 @@ from model import intermediate_table
 
 """
     Receiving a tree of operations, this class builds all the operations,
-managing the construct in the right order and allowing parallelism.
+managing the construction in the right order allowing parallelism.
 """
 
 
@@ -26,7 +26,8 @@ class QueryBuilder():
             for result in results:
                 sub_operations[result[0].data['name']] = result[1]
 
-        obj_op = intermediate_table.IntermediateTable(node.data, sub_operations)
+        obj_op = intermediate_table.IntermediateTable(node.data,
+                                                      sub_operations)
         self.operations[node.data['name']] = obj_op
         return node, obj_op
 

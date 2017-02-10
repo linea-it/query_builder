@@ -1,5 +1,5 @@
-import json
 from utils.db import dal, DataAccessLayer
+from utils import util
 
 from model.query_builder import QueryBuilder
 import model.tree as t
@@ -7,17 +7,13 @@ import model.tree as t
 import settings
 
 
-def load_json(filename):
-    with open(filename) as f:
-        return json.load(f)
-
 if __name__ == "__main__":
     db = settings.DATABASES[settings.DATABASE]
     dal.db_init(DataAccessLayer.str_connection(db),
                 schema_input=settings.SCHEMA_INPUT,
                 schema_output=settings.SCHEMA_OUTPUT)
 
-    obj = load_json(settings.OPERATIONS_FILE)
+    obj = util.load_json(settings.OPERATIONS_FILE)
     tree = t.tree_builder(obj)
 
     print(tree)

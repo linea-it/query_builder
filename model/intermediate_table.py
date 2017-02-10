@@ -8,10 +8,12 @@ from utils.db import dal
 
 
 """
-    This class provides common methods to manipulate queries. The query
-itself, is defined in the class queries and the Factory class QueryBulder -see
-model.query_builder- creates the operation accordingly the params['op']
-variable.
+    "An intermediate table is a table created on the database to store temporary
+data that are used to calculate the final result set. These tables can either
+be 'permanent' or 'temporary' depending on the configuration of it."
+
+    This class provides the basic utilities to represent the concept about an
+intermediate table.
 """
 
 

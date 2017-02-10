@@ -8,21 +8,26 @@ from model import sql_operations
 
 
 """
-When a new query must be written, we basically heritage the IQuery class and
-override the method get_statement.
+An operation represents a query that is built based on the input configuration
+-params- and optionally, it can depend on intermediate tables -sub_operations-.
+This way, a single operation can be used to compose many queries.
+
+Basically, when a new operation must be written, we basically heritage the IOperation
+class and override the method get_statement.
 """
 
 
 class IOperation():
     """
-    Abstract class that defines the interface to create new queries.
+    Abstract class that defines the interface to create new operations.
     """
     def get_statement(self, params, sub_operations):
         """
-        This method defines the query. *args:
-        params - a dictionary that has specific information about the query.
-        sub_operations - It has a list of operations in which this new query
-        depends.
+        This method defines the operation. *args:
+        params - a dictionary that has specific information about the
+        operation.
+        sub_operations - It has a list of operations in which this new
+        operation depends.
         It must return a SQLAlchemy select statement.
         """
         raise NotImplementedError("Implement this method")

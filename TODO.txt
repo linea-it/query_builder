@@ -1,4 +1,0 @@
-review file inout/data.json -> this is the file used to read input_parameters, but it should not existing in the current folder.
-    * Move file to test/ and make a copy to inout/ when the test are being executed.
-
-test/generate_map_table.py -> create a folder db and move the file. Inside this folder, create a file settings.py containing the db settings used in test.

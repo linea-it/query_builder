@@ -1,10 +1,14 @@
 # query_builder
 
-The ***query_builder*** was developed to automate SQL operations based on input data provided by the user. The concept behind the ***query_builder*** is that a complex operation in a relational DB can be optimized by breaking it down into smaller operations that create intermediate tables which are combining in a predefined order reducing  the overall execution time.
+The ***query_builder*** was developed to automate SQL operations based on input data provided by the user. The concept behind the ***query_builder*** is that a complex operation in a relational DB can be optimized by breaking it down into smaller operations that create intermediate tables which are combining in a predefined order reducing  the overall execution time. Besides, we are not only concerned in the final results, but we wish to be able to analise the intermediate steps.
 
-New SQL operations can be easily added and specified in the input JSON file which also represents the workflow. A new operation - query - is defined overriding the interface IQuery, method get_statement. The SQLAlchemy core must be used to define the operations. 
+To achieve this purpose, the code uses two concepts:
+***Operation*** - A query that is built based on the input data and optionally, it can depend on intermediate tables.
+***Intermediate table*** - "is a table created on the database to store temporary data that are used to calculate the final result set. These tables can either be 'permanent' or 'temporary' depending on the configuration of it."
 
-So, given a input JSON file and all the queries descriptions, all the operations are created automatically having a set of useful methods and they are accessed through a dictionary where the key is the operation name defined in the JSON file and the value is the object associated with the operation.
+New SQL operations can be easily added and specified in a input JSON file which also represents the workflow. A new operation is defined overriding the interface IOperation, method get_statement. The SQLAlchemy core must be used to define the operations. 
+
+So, given a input JSON file, the query_builder builds all the operations, managing the construction in the right order allowing parallelism.
 
 1. Clone the project, create a virtualenv and install dependencies
 ```

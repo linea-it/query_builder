@@ -5,7 +5,7 @@ from utils.db import dal, DataAccessLayer
 
 from model.query_builder import QueryBuilder
 import model.tree as t
-import main
+from utils import util
 
 
 class test_operations(unittest.TestCase):
@@ -24,7 +24,7 @@ class test_operations(unittest.TestCase):
     @staticmethod
     def get_operations(file_name):
         path = test_operations.base_path + file_name
-        obj = main.load_json(path)
+        obj = util.load_json(path)
         tree = t.tree_builder(obj)
         return QueryBuilder(tree)
 

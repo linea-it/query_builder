@@ -1,14 +1,25 @@
-# query_builder
+# `query_builder`
 
-The ***query_builder*** was developed to automate SQL operations based on input data provided by the user. The concept behind the ***query_builder*** is that a complex operation in a relational DB can be optimized by breaking it down into smaller operations that create intermediate tables which are combining in a predefined order reducing  the overall execution time. Besides, we are not only concerned in the final results, but we wish to be able to analise the intermediate steps.
+The `query_builder` was developed to automate SQL operations based on input data and configuration provided by the user. The concept behind the `query_builder` is that a complex operation in a relational DB can be optimized by breaking it down into smaller operations. These operations can be native DB operations like `join`, bitwise operations or extended operations defined by the user. As a result of an operation, intermediate tables are created. These tables can be permanent in the database or trully temporary. The job of the query builder is to combine those intermediate tables in a predefined order to reduce the overall execution time. For instance, time consuming operations like `join` between large tables are performed at the end only when the size of the involved tables are reduced by previous operations. 
 
-To achieve this purpose, the code uses two concepts:
-***Operation*** - A query that is built based on the input data and optionally, it can depend on intermediate tables.
-***Intermediate table*** - "is a table created on the database to store temporary data that are used to calculate the final result set. These tables can either be 'permanent' or 'temporary' depending on the configuration of it."
+The main concepts of the `query_builder` implementation are:
 
-New SQL operations can be easily added and specified in a input JSON file which also represents the workflow. A new operation is defined overriding the interface IOperation, method get_statement. The SQLAlchemy core must be used to define the operations. 
+**Workflow:** the sequence of operations is described in a workflow like representation, the `query_builder` builds the queries for each operation, create intermediat tables and combine them in a predefined order to optimize the execution time. It also manages the parallelization of independent operations that can be run simultaneously.
 
-So, given a input JSON file, the query_builder builds all the operations, managing the construction in the right order allowing parallelism.
+**Operation:**  a relational DB operation or a new operation defined by the user combining other operations. The result of an operation is an SQL query which is built based on input tables, intermediate tables created in previous operation of the workflow and on the configuration provided by the user for each operation. 
+
+New operations can be easily added and specified in the JSON file which represents the workflow. A new operation is defined overriding the `get_statement` method in the `IOperation` class. All operations are defined in Python using the SQLAlchemy core library.
+
+**Intermediate table:** is a table created on the DB to store temporary data that are used to compute the final result. These tables can either be 'permanent' or 'temporary' depending on the configuration specified by the user. Permanent tables are useful for gather information on intermediate steps like fraction of rows removes, and other dianostics.
+
+
+Example of a simple workflow:
+
+(Lucas, inclui aqui um exemplo de workflow e descreve o que ele faz passo a passo)
+
+
+
+# Running the `query_builder` locally
 
 1. Clone the project, create a virtualenv and install dependencies
 ```

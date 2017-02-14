@@ -321,7 +321,7 @@ class PhotoZ(IOperation):
     OPERATION = 'photoz'
 
     def get_statement(self, params, sub_operations):
-        sub_op = sub_operations.values()[0]
+        sub_op = list(sub_operations.values())[0]
 
         # load tables.
         t_sub_op = Table(sub_op.save_at(), dal.metadata, autoload=True,
@@ -351,7 +351,7 @@ class GalaxyProperties(IOperation):
     OPERATION = 'galaxy_properties'
 
     def get_statement(self, params, sub_operations):
-        sub_op = sub_operations.values()[0]
+        sub_op = list(sub_operations.values())[0]
 
         # load tables.
         t_sub_op = Table(sub_op.save_at(), dal.metadata, autoload=True,

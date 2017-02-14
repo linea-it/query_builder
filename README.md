@@ -12,12 +12,44 @@ New operations can be easily added and specified in the JSON file which represen
 
 **Intermediate table:** is a table created on the DB to store temporary data that are used to compute the final result. These tables can either be 'permanent' or 'temporary' depending on the configuration specified by the user. Permanent tables are useful for gather information on intermediate steps like fraction of rows removes, and other dianostics.
 
+**Example of a simple workflow:**
+An `workflow` is defined using a JSON file. Each Object, represents an operation that must have at least 3 fields:
+**"name"** - Is the operation name and will be used to compose the intermediate table name. 
+**"op"** - Is the type of the operation that will be executed. The operation must be defined in the `operations` file.
+**"permanent_table"** - If true, the table will be kept on the database. Otherwise, it will be removed as soon as possible.
 
-Example of a simple workflow:
+Other fields can be added accordingly the operation needs. For example, the exposure_time_i operation has a field "value" that will be used by the operation "great_equal" only. To access this fields the method get_statement has an dictionary attribute called `params`.
 
-(Lucas, inclui aqui um exemplo de workflow e descreve o que ele faz passo a passo)
+When an operation depends on others operations, we use the reserved field "sub_op" and declare the list of operations that it depends on. In this sample, the exposure_time uses the intermediate tables produced by exposure_time_i and exposure_time_r. To access this data, the `get_statement` method has the attribute sub_operations in which the key is the operation name and the value associated is an object representation of an intermediate table.
 
+**Workflow definition:**
+{
+  "name": "exposure_time",
+  "op": "join", 
+  "permanent_table": true,
+  "sub_op": [
+    {
+      "name": "exposure_time_i",
+      "op": "great_equal", 
+	  "permanent_table": false,
+	  "db": "y1a1_coadd_cosmos_d04_4096_exptime_i_10023575",
+      "value": "0.55"
+    }, 
+    {
+      "name": "exposure_time_r",
+      "op": "great_equal",
+	  "permanent_table": false,
+      "db": "y1a1_coadd_cosmos_d04_4096_exptime_i_10023575",
+      "value": "0.33"
+    }
+  ]
+}
 
+The arguments received by the `get_statement` function for the example above is:
+
+![alt tag](https://cloud.githubusercontent.com/assets/6139408/22945147/4f5babe4-f2da-11e6-9e99-40d31997efe8.jpg)
+
+This way, all the operations can be written overriding the method `get_statement`.
 
 # Running the `query_builder` locally
 

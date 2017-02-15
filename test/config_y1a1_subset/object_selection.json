@@ -1,6 +1,7 @@
 {  
   "name":"object_selection",
   "op":"object_selection",
+  "schema_input": "tst_oracle_input",
   "permanent_table": true,
   "description":"footprint description",
   "table_coadd_objects":"coadd_objects",
@@ -56,6 +57,7 @@
   "sub_op":[  
     {  
       "name":"footprint",
+      "schema_input": "tst_oracle_input",
       "db":"y1a1_coadd_cosmos_d04_4096_exptime_i_10023575",
       "op":"footprint",
       "permanent_table": true,
@@ -69,6 +71,7 @@
           "sub_op":[  
             {  
               "name":"exposure_time_i",
+              "schema_input": "tst_oracle_input",
               "db":"y1a1_coadd_cosmos_d04_4096_exptime_i_10023575",
               "op":"great_equal",
               "permanent_table": false,
@@ -78,6 +81,7 @@
             },
             {  
               "name":"exposure_time_r",
+              "schema_input": "tst_oracle_input",
               "db":"y1a1_coadd_cosmos_d04_4096_exptime_r_10023575",
               "op":"great_equal",
               "permanent_table": false,
@@ -87,6 +91,7 @@
             },
             {  
               "name":"exposure_time_z",
+              "schema_input": "tst_oracle_input",
               "db":"y1a1_coadd_cosmos_d04_4096_exptime_z_10023575",
               "op":"great_equal",
               "permanent_table": false,
@@ -104,6 +109,7 @@
           "sub_op":[  
             {  
               "name":"mangle_maps_i",
+              "schema_input": "tst_oracle_input",
               "db":"mangle_maps_4096_ring_frac_i_10024132",
               "op":"great_equal",
               "permanent_table": false,
@@ -113,6 +119,7 @@
             },
             {  
               "name":"mangle_maps_r",
+              "schema_input": "tst_oracle_input",
               "db":"mangle_maps_4096_ring_frac_r_10024132",
               "op":"great_equal",
               "permanent_table": false,
@@ -124,6 +131,7 @@
         },
         {  
           "name":"bad_regions",
+          "schema_input": "tst_oracle_input",
           "db":"y1a1_coadd_cosmos_d04_bright_mask_4096_ring_10023572_sub_set",
           "op":"bad_regions",
           "permanent_table": false,

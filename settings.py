@@ -1,8 +1,7 @@
 # OPERATIONS_FILE = 'test/config_devel2/galaxy_properties.json'
-OPERATIONS_FILE = 'test/config_y1a1_subset/footprint_inner_left.json'
+OPERATIONS_FILE = 'test/config_y1a1_subset/galaxy_properties.json'
 
 SCHEMA_OUTPUT = 'tst_oracle_output'
-SCHEMA_INPUT = 'tst_oracle_input'
 
 DATABASE = 'y1a1_subset'
 DATABASES = {

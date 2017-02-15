@@ -38,7 +38,7 @@ class GreatEqual(IOperation):
 
     def get_statement(self, params, sub_operations):
         table = Table(params['db'], dal.metadata, autoload=True,
-                      schema=dal.schema_input)
+                      schema=params['schema_input'])
         stm = select(
           [table]).where(table.c.signal >= literal_column(params['value']))
         return stm
@@ -74,7 +74,7 @@ class BadRegions(IOperation):
 
     def get_statement(self, params, sub_operations):
         table = Table(params['db'], dal.metadata, autoload=True,
-                      schema=dal.schema_input)
+                      schema=params['schema_input'])
         stm = select([table]).where(sql_operations.BitwiseAnd(
                                     cast(table.c.signal, Integer),
                                     literal_column(params['value'])) >
@@ -105,7 +105,7 @@ class Footprint(IOperation):
         # load tables.
         # review from data.
         table_footprint = Table(params['db'], dal.metadata,
-                                autoload=True, schema=dal.schema_input)
+                                autoload=True, schema=params['schema_input'])
         sub_tables_inner = []
         for table in inner_join_ops:
             sub_tables_inner.append(Table(table.save_at(), dal.metadata,
@@ -148,10 +148,10 @@ class ObjectSelection(IOperation):
                             dal.metadata, autoload=True,
                             schema=dal.schema_output)
         t_coadd = Table(params['table_coadd_objects'], dal.metadata,
-                        autoload=True, schema=dal.schema_input)
+                        autoload=True, schema=params['schema_input'])
         t_objects_ring = Table(params['table_coadd_objects_ring'],
                                dal.metadata, autoload=True,
-                               schema=dal.schema_input)
+                               schema=params['schema_input'])
 
         # join statement
         stm_join = t_footprint
@@ -167,9 +167,9 @@ class ObjectSelection(IOperation):
         if 'mangle_bitmask' in params:
             t_coadd_molygon = Table(params['table_coadd_objects_molygon'],
                                     dal.metadata, autoload=True,
-                                    schema=dal.schema_input)
+                                    schema=params['schema_input'])
             t_molygon = Table(params['table_molygon'], dal.metadata,
-                              autoload=True, schema=dal.schema_input)
+                              autoload=True, schema=params['schema_input'])
 
             stm_join = stm_join.join(t_coadd_molygon,
                                      t_coadd.c.coadd_objects_id ==
@@ -299,7 +299,7 @@ class SgSeparation(IOperation):
         t_sg = []
         for table in params['tables_sg']:
             t_sg.append(Table(table, dal.metadata, autoload=True,
-                              schema=dal.schema_input))
+                              schema=params['schema_input']))
 
         _where = []
         # join statement
@@ -329,7 +329,7 @@ class PhotoZ(IOperation):
         t_pz = []
         for table in params['tables_zp']:
             t_pz.append(Table(table, dal.metadata, autoload=True,
-                              schema=dal.schema_input))
+                              schema=params['schema_input']))
 
         _where = []
         # join statement
@@ -359,7 +359,7 @@ class GalaxyProperties(IOperation):
         t_gp = []
         for table in params['tables_gp']:
             t_gp.append(Table(table, dal.metadata, autoload=True,
-                              schema=dal.schema_input))
+                              schema=params['schema_input']))
 
         # join statement
         stm_join = t_sub_op

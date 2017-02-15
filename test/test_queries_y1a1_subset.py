@@ -19,7 +19,6 @@ class test_operations(unittest.TestCase):
         'database': 'query_builder'
     }
     dal.db_init(DataAccessLayer.str_connection(db),
-                schema_input='tst_oracle_input',
                 schema_output='tst_oracle_output')
     base_path = "test/config_y1a1_subset/"
 
@@ -39,6 +38,10 @@ class test_operations(unittest.TestCase):
     def test_op_footprint_inner_left(self):
         self.operations = test_operations.get_operations(
                 'footprint_inner_left.json')
+
+    def test_op_combined_maps(self):
+        self.operations = test_operations.get_operations(
+                'combined_maps.json')
 
     def test_op_object_selection(self):
         self.operations = test_operations.get_operations(

@@ -1,5 +1,6 @@
 {
   "name": "mangle_maps_g",
+  "schema_input": "tst_oracle_input",
   "db": "mangle_maps_4096_ring_frac_g_10024132",
   "op": "great_equal", 
   "permanent_table": false,

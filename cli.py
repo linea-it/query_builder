@@ -10,7 +10,6 @@ import settings
 if __name__ == "__main__":
     db = settings.DATABASES[settings.DATABASE]
     dal.db_init(DataAccessLayer.str_connection(db),
-                schema_input=settings.SCHEMA_INPUT,
                 schema_output=settings.SCHEMA_OUTPUT)
 
     obj = util.load_json(settings.OPERATIONS_FILE)

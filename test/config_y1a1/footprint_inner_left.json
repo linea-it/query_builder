@@ -1,0 +1,84 @@
+{  
+  "name":"footprint",
+  "schema_input": "systematic_maps",
+  "db":"y1a1_coadd_cosmos_d04_4096_exptime_i_10023575",
+  "op":"footprint",
+  "permanent_table": false,
+  "description":"footprint description",
+  "sub_op":[  
+    {  
+      "name":"exposure_time",
+      "op":"join",
+      "permanent_table": false,
+      "description":"systematic_maps exposure_time",
+      "sub_op":[  
+        {  
+          "name":"exposure_time_i",
+          "schema_input": "systematic_maps",
+          "db":"y1a1_coadd_cosmos_d04_4096_exptime_i_10023575",
+          "op":"great_equal",
+          "permanent_table": true,
+          "description":"exposure_time_i description",
+          "band":"g",
+          "value":"600"
+        },
+        {  
+          "name":"exposure_time_r",
+          "schema_input": "systematic_maps",
+          "db":"y1a1_coadd_cosmos_d04_4096_exptime_r_10023575",
+          "op":"great_equal",
+          "permanent_table": false,
+          "description":"exposure_time_r description",
+          "band":"r",
+          "value":"600"
+        },
+        {  
+          "name":"exposure_time_z",
+          "schema_input": "systematic_maps",
+          "db":"y1a1_coadd_cosmos_d04_4096_exptime_z_10023575",
+          "op":"great_equal",
+          "permanent_table": false,
+          "description":"exposure_time_z description",
+          "band":"z",
+          "value":"300"
+        }
+      ]
+    },
+    {  
+      "name":"mangle_map",
+      "op":"join",
+      "permanent_table": true,
+      "description":"mangle_maps description",
+      "sub_op":[  
+        {  
+          "name":"mangle_maps_i",
+          "schema_input": "y1a1_coadd_cosmos_d04",
+          "db":"mangle_maps_4096_ring_frac_i_10024132",
+          "op":"great_equal",
+          "permanent_table": true,
+          "description":"depth_map description",
+          "band":"g",
+          "value":"0.5"
+        },
+        {  
+          "name":"mangle_maps_r",
+          "schema_input": "y1a1_coadd_cosmos_d04",
+          "db":"mangle_maps_4096_ring_frac_r_10024132",
+          "op":"great_equal",
+          "permanent_table": false,
+          "description":"exposure_time_r description",
+          "band":"r",
+          "value":"0.5"
+        }
+      ]
+    },
+    {  
+      "name":"bad_regions",
+      "schema_input": "bright_mask",
+      "db":"y1a1_coadd_cosmos_d04_bright_mask_4096_ring_10023572",
+      "op":"bad_regions",
+      "permanent_table": true,
+      "value":"1"
+    }
+  ]
+}

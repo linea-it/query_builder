@@ -1,0 +1,10 @@
+{
+  "name": "mangle_maps_g",
+  "schema_input": "y1a1_coadd_cosmos_d04",
+  "db": "mangle_maps_4096_ring_frac_g_10024132",
+  "op": "great_equal", 
+  "permanent_table": true,
+  "description": "exposure_time_i description", 
+  "band": "g", 
+  "value": "0.55"
+}

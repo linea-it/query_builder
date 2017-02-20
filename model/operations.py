@@ -12,8 +12,8 @@ An operation represents a query that is built based on the input configuration
 -params- and optionally, it can depend on intermediate tables -sub_operations-.
 This way, a single operation can be used to compose many queries.
 
-Basically, when a new operation must be written, we basically heritage the IOperation
-class and override the method get_statement.
+Basically, when a new operation must be written, we basically heritage the
+IOperation class and override the method get_statement.
 """
 
 
@@ -61,11 +61,6 @@ class CombinedMaps(IOperation):
             stm_join = stm_join.join(sub_tables[i], sub_tables[i-1].c.pixel ==
                                      sub_tables[i].c.pixel)
         stm = stm.select_from(stm_join)
-
-        # REVIEW
-        # drop sub tables
-        # for k, v in sub_operations['sub_op'].items():
-        #     v.delete()
         return stm
 
 
@@ -133,22 +128,19 @@ class Footprint(IOperation):
 
         if len(sub_tables_left) > 0:
             for table in sub_tables_left:
-                stm = stm.where(table.c.pixel == None)
+                stm = stm.where(table.c.pixel is None)
 
         return stm
 
 
-class ObjectSelection(IOperation):
-    OPERATION = 'object_selection'
-    BANDS = ['g', 'r', 'i', 'z', 'y']
+class Reduction(IOperation):
+    OPERATION = 'reduction'
 
     def get_statement(self, params, sub_operations):
         # load tables.
         t_footprint = Table(sub_operations['footprint'].save_at(),
                             dal.metadata, autoload=True,
                             schema=dal.schema_output)
-        t_coadd = Table(params['table_coadd_objects'], dal.metadata,
-                        autoload=True, schema=params['schema_input'])
         t_objects_ring = Table(params['table_coadd_objects_ring'],
                                dal.metadata, autoload=True,
                                schema=params['schema_input'])
@@ -157,31 +149,29 @@ class ObjectSelection(IOperation):
         stm_join = t_footprint
         stm_join = stm_join.join(t_objects_ring, t_footprint.c.pixel ==
                                  t_objects_ring.c.pixel)
-        stm_join = stm_join.join(t_coadd, t_objects_ring.c.coadd_objects_id ==
+        stm = select([t_objects_ring.c.coadd_objects_id]).\
+            select_from(stm_join)
+        return stm
+
+
+class Cuts(IOperation):
+    OPERATION = 'cuts'
+
+    BANDS = ['g', 'r', 'i', 'z', 'y']
+
+    def get_statement(self, params, sub_operations):
+        t_reduction = Table(sub_operations['reduction'].save_at(),
+                            dal.metadata, autoload=True,
+                            schema=dal.schema_output)
+        t_coadd = Table(params['table_coadd_objects'], dal.metadata,
+                        autoload=True, schema=params['schema_input'])
+
+        # join statement
+        stm_join = t_reduction
+        stm_join = stm_join.join(t_coadd, t_reduction.c.coadd_objects_id ==
                                  t_coadd.c.coadd_objects_id)
 
         _where = []
-
-        # bitmask
-        alias_table = None
-        if 'mangle_bitmask' in params:
-            t_coadd_molygon = Table(params['table_coadd_objects_molygon'],
-                                    dal.metadata, autoload=True,
-                                    schema=params['schema_input'])
-            t_molygon = Table(params['table_molygon'], dal.metadata,
-                              autoload=True, schema=params['schema_input'])
-
-            stm_join = stm_join.join(t_coadd_molygon,
-                                     t_coadd.c.coadd_objects_id ==
-                                     t_coadd_molygon.c.coadd_objects_id)
-
-            for band in params['mangle_bitmask']:
-                # give the str column and retrieve the attribute.
-                alias_table = t_molygon.alias('molygon_%s' % band)
-                col = getattr(t_coadd_molygon.c, 'molygon_id_%s' % band)
-                stm_join = stm_join.join(alias_table,
-                                         col == alias_table.c.id)
-            _where.append(alias_table.c.hole_bitmask != 1)
 
         # cuts involving only coadd_objects_columns
         # sextractor flags
@@ -222,7 +212,7 @@ class ObjectSelection(IOperation):
         # spreaderr model
         if 'spreaderr_model' in params['additional_cuts']:
             tmp = []
-            for band in ObjectSelection.BANDS:
+            for band in Cuts.BANDS:
                 col = getattr(t_coadd.c, 'spreaderr_model_%s' % band)
                 tmp.append(col > literal_column('0'))
             _where.append(and_(*tmp))
@@ -285,6 +275,58 @@ class ObjectSelection(IOperation):
         stm = select([t_coadd.c.coadd_objects_id]).\
             select_from(stm_join).where(and_(*_where))
 
+        return stm
+
+
+class Bitmask(IOperation):
+    OPERATION = 'bitmask'
+
+    def get_statement(self, params, sub_operations):
+        sub_op = list(sub_operations.values())[0]
+
+        # load tables.
+        t_sub_op = Table(sub_op.save_at(), dal.metadata, autoload=True,
+                         schema=dal.schema_output)
+        _where = []
+
+        # bitmask
+        alias_table = None
+        t_coadd_molygon = Table(params['table_coadd_objects_molygon'],
+                                dal.metadata, autoload=True,
+                                schema=params['schema_input'])
+        t_molygon = Table(params['table_molygon'], dal.metadata,
+                          autoload=True, schema=params['schema_input'])
+
+        stm_join = t_sub_op
+        stm_join = stm_join.join(t_coadd_molygon,
+                                 t_sub_op.c.coadd_objects_id ==
+                                 t_coadd_molygon.c.coadd_objects_id)
+
+        for band in params['mangle_bitmask']:
+            # give the str column and retrieve the attribute.
+            alias_table = t_molygon.alias('molygon_%s' % band)
+            col = getattr(t_coadd_molygon.c, 'molygon_id_%s' % band)
+            stm_join = stm_join.join(alias_table,
+                                     col == alias_table.c.id)
+        _where.append(alias_table.c.hole_bitmask != 1)
+
+        stm = select([t_sub_op.c.coadd_objects_id]).\
+            select_from(stm_join).where(and_(*_where))
+
+        return stm
+
+
+class ObjectSelection(IOperation):
+    OPERATION = 'object_selection'
+
+    def get_statement(self, params, sub_operations):
+        sub_op = list(sub_operations.values())[0]
+
+        # load tables.
+        t_sub_op = Table(sub_op.save_at(), dal.metadata, autoload=True,
+                         schema=dal.schema_output)
+
+        stm = select([t_sub_op.c.coadd_objects_id])
         return stm
 
 

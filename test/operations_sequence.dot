@@ -1,0 +1,12 @@
+object_selection -> bitmask
+bitmaskk -> cuts
+cuts -> reduction
+reduction -> footprint
+footprint -> exposure_time
+exposure_time -> exposure_time_i
+exposure_time -> exposure_time_r
+exposure_time -> exposure_time_z
+footprint -> mangle_map
+mangle_map -> mangle_maps_i
+mangle_map -> mangle_maps_r
+footprint -> bad_regions 

@@ -26,16 +26,25 @@ def traverse_post_order(node):
     """
     Given a node, it returns the nodes in post order sequence.
     """
-    for sub_nodes in node.sub_nodes:
-        traverse_post_order(sub_nodes)
+    for sub_node in node.sub_nodes:
+        traverse_post_order(sub_node)
     return node
 
 
-def tree_builder(obj, level=0):
-    """
-    Creates a tree using a dict -obj- as input. 
-    """
-    node = Node(data=obj, level=level)
-    for child in obj.get('sub_op', []):
-        node.add_child(tree_builder(child, level=level+1))
-    return node
+class Tree():
+    def __init__(self, tree_desc, ops_desc):
+        self.tree_desc = tree_desc
+        self.ops_desc = ops_desc
+
+    def tree_builder(self, root_node, level=0):
+        """
+        Creates a tree using a dict -obj- as input.
+        """
+
+        # The operation name can be accessed using the key 'name'.
+        cur_ops_desc = self.ops_desc[root_node]['name'] = root_node
+        node = Node(data=self.ops_desc[root_node], level=level)
+        if root_node in self.tree_desc:
+            for sub_node in self.tree_desc[root_node]:
+                node.add_child(self.tree_builder(sub_node, level=level+1))
+        return node

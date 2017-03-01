@@ -1,5 +1,4 @@
 import unittest
-from mock import patch, Mock
 
 from utils.db import dal, DataAccessLayer
 
@@ -20,44 +19,101 @@ class test_operations(unittest.TestCase):
     }
     dal.db_init(DataAccessLayer.str_connection(db),
                 schema_output='tst_oracle_output')
-    base_path = "test/config_y1a1_subset/"
-
-    @staticmethod
-    def get_operations(file_name):
-        path = test_operations.base_path + file_name
-        obj = util.load_json(path)
-        tree = t.tree_builder(obj)
-        return QueryBuilder(tree)
 
     def setUp(self):
+        ops_path = "test/ops_subset_y1a1_local_db.json"
+        self.ops_desc = util.load_json(ops_path)
         self.operations = None
 
     def test_op_great_equal(self):
-        self.operations = test_operations.get_operations('great_equal.json')
+        tree_desc = {
+            "exposure_time_i": []
+        }
+        tree = t.Tree(tree_desc, self.ops_desc).tree_builder('exposure_time_i')
+        self.operations = QueryBuilder(tree)
 
     def test_op_footprint_inner_left(self):
-        self.operations = test_operations.get_operations(
-                'footprint_inner_left.json')
+        tree_desc = {
+            "footprint": ["exposure_time", "mangle_map", "bad_regions"],
+            "exposure_time": ["exposure_time_i", "exposure_time_r",
+                              "exposure_time_z"],
+            "mangle_map": ["mangle_maps_i", "mangle_maps_r"]
+        }
+        tree = t.Tree(tree_desc, self.ops_desc).tree_builder('footprint')
+        self.operations = QueryBuilder(tree)
 
     def test_op_combined_maps(self):
-        self.operations = test_operations.get_operations(
-                'combined_maps.json')
+        tree_desc = {
+            "exposure_time": [
+                "exposure_time_i",
+                "exposure_time_r",
+                "exposure_time_z"
+            ]
+        }
+        tree = t.Tree(tree_desc, self.ops_desc).tree_builder('exposure_time')
+        self.operations = QueryBuilder(tree)
 
     def test_op_object_selection(self):
-        self.operations = test_operations.get_operations(
-                'object_selection.json')
+        tree_desc = {
+            "object_selection": ["bitmask"],
+            "bitmask": ["cuts"],
+            "cuts": ["reduction"],
+            "reduction": ["footprint"],
+            "footprint": ["exposure_time", "mangle_map", "bad_regions"],
+            "exposure_time": ["exposure_time_i", "exposure_time_r",
+                              "exposure_time_z"],
+            "mangle_map": ["mangle_maps_i", "mangle_maps_r"]
+        }
+        tree = t.Tree(tree_desc, self.ops_desc).tree_builder('object_selection')
+        self.operations = QueryBuilder(tree)
 
     def test_op_sg_separation(self):
-        self.operations = test_operations.get_operations(
-                'sg_separation.json')
+        tree_desc = {
+            "sg_separation": ["object_selection"],
+            "object_selection": ["bitmask"],
+            "bitmask": ["cuts"],
+            "cuts": ["reduction"],
+            "reduction": ["footprint"],
+            "footprint": ["exposure_time", "mangle_map", "bad_regions"],
+            "exposure_time": ["exposure_time_i", "exposure_time_r",
+                              "exposure_time_z"],
+            "mangle_map": ["mangle_maps_i", "mangle_maps_r"]
+        }
+        tree = t.Tree(tree_desc, self.ops_desc).tree_builder('sg_separation')
+        self.operations = QueryBuilder(tree)
 
     def test_op_photoz(self):
-        self.operations = test_operations.get_operations(
-                'photoz.json')
+        tree_desc = {
+            "photoz": ["sg_separation"],
+            "sg_separation": ["object_selection"],
+            "object_selection": ["bitmask"],
+            "bitmask": ["cuts"],
+            "cuts": ["reduction"],
+            "reduction": ["footprint"],
+            "footprint": ["exposure_time", "mangle_map", "bad_regions"],
+            "exposure_time": ["exposure_time_i", "exposure_time_r",
+                              "exposure_time_z"],
+            "mangle_map": ["mangle_maps_i", "mangle_maps_r"]
+        }
+        tree = t.Tree(tree_desc, self.ops_desc).tree_builder('photoz')
+        self.operations = QueryBuilder(tree)
 
     def test_op_galaxy_properties(self):
-        self.operations = test_operations.get_operations(
-                'galaxy_properties.json')
+        tree_desc = {
+            "galaxy_properties": ["photoz"],
+            "photoz": ["sg_separation"],
+            "sg_separation": ["object_selection"],
+            "object_selection": ["bitmask"],
+            "bitmask": ["cuts"],
+            "cuts": ["reduction"],
+            "reduction": ["footprint"],
+            "footprint": ["exposure_time", "mangle_map", "bad_regions"],
+            "exposure_time": ["exposure_time_i", "exposure_time_r",
+                              "exposure_time_z"],
+            "mangle_map": ["mangle_maps_i", "mangle_maps_r"]
+        }
+        tree = t.Tree(tree_desc, self.ops_desc).tree_builder('galaxy_properties')
+        self.operations = QueryBuilder(tree)
 
     def tearDown(self):
         self.operations.drop_all_tables()

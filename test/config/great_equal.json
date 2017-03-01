@@ -1,8 +1,0 @@
-{
-  "name": "exposure_time_i",
-  "db": "systematic_map",
-  "op": "great_equal", 
-  "description": "exposure_time_i description", 
-  "band": "g", 
-  "value": "0.55"
-}

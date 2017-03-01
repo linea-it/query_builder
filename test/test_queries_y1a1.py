@@ -18,10 +18,9 @@ class test_operations(unittest.TestCase):
     }
     dal.db_init(DataAccessLayer.str_connection(db),
                 schema_output='tst_oracle_output')
-    base_path = "test/config_y1a1/"
 
     def setUp(self):
-        ops_path = test_operations.base_path + "operations_description.json"
+        ops_path = "test/ops_subset_y1a1.json"
         self.ops_desc = util.load_json(ops_path)
         self.operations = None
 

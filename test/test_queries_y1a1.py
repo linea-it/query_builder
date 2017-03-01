@@ -21,7 +21,7 @@ class test_operations(unittest.TestCase):
     base_path = "test/config_y1a1/"
 
     def setUp(self):
-        ops_path = test_operations.base_path + "object_selection.json"
+        ops_path = test_operations.base_path + "operations_description.json"
         self.ops_desc = util.load_json(ops_path)
         self.operations = None
 

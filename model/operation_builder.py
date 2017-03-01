@@ -19,6 +19,7 @@ class OperationBuilder():
     ops[operations.Cuts.OPERATION] = operations.Cuts()
     ops[operations.Bitmask.OPERATION] = operations.Bitmask()
     ops[operations.ObjectSelection.OPERATION] = operations.ObjectSelection()
+    ops[operations.SgSeparation.OPERATION] = operations.SgSeparation()
     ops[operations.PhotoZ.OPERATION] = operations.PhotoZ()
     ops[operations.GalaxyProperties.OPERATION] = operations.GalaxyProperties()
 
@@ -28,4 +29,4 @@ class OperationBuilder():
             operation = OperationBuilder.ops[operation_type]
             return operation
         except:
-            raise "This operation is not implemented."
+            raise "The %s operation is not implemented." % operation_type

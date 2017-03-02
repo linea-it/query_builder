@@ -1,6 +1,6 @@
 {  
   "galaxy_properties":{
-    "schema_input": "tst_oracle_input",
+    "schema_input": "gal_properties",
     "op":"galaxy_properties",
     "permanent_table": true,
     "description":"galaxy_properties description",
@@ -12,7 +12,7 @@
     "op":"photoz",
     "permanent_table": false,
     "description":"photo_z description",
-    "schema_input": "tst_oracle_input",
+    "schema_input": "photoz_compute",
     "tables_zp":[  
       "dnf_10023851"
     ],
@@ -23,7 +23,7 @@
     "op":"sg_separation",
     "permanent_table": false,
     "description":"sg_separation description",
-    "schema_input": "tst_oracle_input",
+    "schema_input": "sg_separation",
     "tables_sg":[  
       "modest_10022759"
     ],
@@ -105,7 +105,7 @@
     "schema_input":"systematic_maps",
     "db":"y1a1_coadd_cosmos_d04_4096_exptime_i_10023575",
     "op":"footprint",
-    "permanent_table":false,
+    "permanent_table":true,
     "description":"footprint description"
   },
   "exposure_time":{  

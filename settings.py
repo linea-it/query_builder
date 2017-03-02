@@ -1,9 +1,10 @@
 # OPERATIONS_FILE = 'test/config_devel2/galaxy_properties.json'
-OPERATIONS_FILE = 'test/config_y1a1_subset/galaxy_properties.json'
+OPS_DESCRIPTION_FILE = 'test/ops_y1a1.json'
+OPS_SEQUENCE_FILE = 'test/operations_sequence.dot'
 
 SCHEMA_OUTPUT = 'tst_oracle_output'
 
-DATABASE = 'y1a1_subset'
+DATABASE = 'y1a1'
 DATABASES = {
     'local':  {
         'dialect': 'postgresql',
@@ -22,6 +23,14 @@ DATABASES = {
         'host': 'localhost',
         'port': '5432',
         'database': 'query_builder',
+     },
+    'y1a1':  {
+        'dialect': 'postgresql',
+        'driver': 'psycopg2',
+        'username': 'gavo',
+        'password': 'gavo',
+        'host': 'localhost',
+        'port': '25432',
      },
     'oracle':  {
         'dialect': 'oracle',

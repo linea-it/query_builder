@@ -128,7 +128,7 @@ class Footprint(IOperation):
 
         if len(sub_tables_left) > 0:
             for table in sub_tables_left:
-                stm = stm.where(table.c.pixel is None)
+                stm = stm.where(table.c.pixel == None)
 
         return stm
 

@@ -12,8 +12,9 @@ if __name__ == "__main__":
     dal.db_init(DataAccessLayer.str_connection(db),
                 schema_output=settings.SCHEMA_OUTPUT)
 
-    obj = util.load_json(settings.OPERATIONS_FILE)
-    tree = t.tree_builder(obj)
+    ops_desc = util.load_json(settings.OPS_DESCRIPTION_FILE)
+    tree_desc = util.dot_file_to_dict(settings.OPS_SEQUENCE_FILE)
+    tree = t.Tree(tree_desc, ops_desc).tree_builder('galaxy_properties')
 
     print(tree)
 

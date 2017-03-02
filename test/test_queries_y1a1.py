@@ -20,7 +20,7 @@ class test_operations(unittest.TestCase):
                 schema_output='tst_oracle_output')
 
     def setUp(self):
-        ops_path = "test/ops_subset_y1a1.json"
+        ops_path = "test/ops_y1a1.json"
         self.ops_desc = util.load_json(ops_path)
         self.operations = None
 

@@ -1,5 +1,8 @@
+galaxy_properties -> photoz
+photoz -> sg_separation
+sg_separation -> object_selection
 object_selection -> bitmask
-bitmaskk -> cuts
+bitmask -> cuts
 cuts -> reduction
 reduction -> footprint
 footprint -> exposure_time

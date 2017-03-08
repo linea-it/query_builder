@@ -196,9 +196,10 @@ class Cuts(IOperation):
         # bbj
         if 'remove_bbj' in params['additional_cuts']:
             _where.append(or_(
-                            t_coadd.c.nepochs_g > 0,
-                            t_coadd.c.magerr_auto_g > 0.05,
-                            t_coadd.c.mag_model_i - t_coadd.c.mag_auto_i > -0.4
+                            t_coadd.c.nepochs_g > literal_column('0'),
+                            t_coadd.c.magerr_auto_g > literal_column('0.05'),
+                            t_coadd.c.mag_model_i - t_coadd.c.mag_auto_i >
+                            literal_column('-0.4')
                             ))
 
         # niter model
@@ -222,12 +223,14 @@ class Cuts(IOperation):
             _where.append(and_(
                     and_(
                         func.abs(t_coadd.c.alphawin_j2000_g -
-                                 t_coadd.c.alphawin_j2000_i) < 0.0003,
+                                 t_coadd.c.alphawin_j2000_i) <
+                        literal_column('0.0003'),
                         func.abs(t_coadd.c.deltawin_j2000_g -
-                                 t_coadd.c.deltawin_j2000_i) < 0.0003
+                                 t_coadd.c.deltawin_j2000_i) <
+                        literal_column('0.0003')
                     ),
                     or_(
-                        t_coadd.c.magerr_auto_g > 0.05
+                        t_coadd.c.magerr_auto_g > literal_column('0.05')
                     )
                 ))
 
@@ -240,7 +243,8 @@ class Cuts(IOperation):
                 col = getattr(t_coadd.c, 'magerr_auto_%s' % band)
                 tmp.append(and_(
                         col > literal_column('0'),
-                        1.086/col > literal_column(str(value))
+                        literal_column('1.086')/col >
+                        literal_column(str(value))
                     ))
             _where.append(and_(*tmp))
 
@@ -269,7 +273,9 @@ class Cuts(IOperation):
                 band, value = element
                 col_max = getattr(t_coadd.c, 'mag_auto_%s' % band[0])
                 col_min = getattr(t_coadd.c, 'mag_auto_%s' % band[1])
-                tmp.append(between(col_max - col_min, value[0], value[1]))
+                tmp.append(between(literal_column(str(col_max - col_min)),
+                                   literal_column(str(value[0])),
+                                   literal_column(str(value[1]))))
             _where.append(and_(*tmp))
 
         stm = select([t_coadd.c.coadd_objects_id]).\
@@ -308,7 +314,7 @@ class Bitmask(IOperation):
             col = getattr(t_coadd_molygon.c, 'molygon_id_%s' % band)
             stm_join = stm_join.join(alias_table,
                                      col == alias_table.c.id)
-        _where.append(alias_table.c.hole_bitmask != 1)
+        _where.append(alias_table.c.hole_bitmask != literal_column('1'))
 
         stm = select([t_sub_op.c.coadd_objects_id]).\
             select_from(stm_join).where(and_(*_where))
@@ -380,8 +386,10 @@ class PhotoZ(IOperation):
             stm_join = stm_join.join(
                 table, t_sub_op.c.coadd_objects_id ==
                 table.c.coadd_objects_id)
-            _where.append(and_(table.c.z_best > params['zmin'],
-                               table.c.z_best < params['zmax']))
+            _where.append(and_(table.c.z_best >
+                               literal_column(str(params['zmin'])),
+                               table.c.z_best <
+                               literal_column(str(params['zmax']))))
 
         stm = select([t_sub_op.c.coadd_objects_id]).\
             select_from(stm_join).where(and_(*_where))

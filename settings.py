@@ -39,5 +39,13 @@ DATABASES = {
         'host': 'localhost',
         'port': '49161',
         'database': 'xe',
+    },
+    'dessci':  {
+        'dialect': 'oracle',
+        'username': 'brportal',
+        'password': 'brp70chips',
+        'host': 'leovip148.ncsa.uiuc.edu',
+        'port': '1521',
+        'database': 'dessci',
      }
 }

@@ -76,7 +76,7 @@ class DropTable(Executable, ClauseElement):
         self.name = name
 
 
-@compiles(DropTable, "postgresql")
+@compiles(DropTable)
 def _drop_table(element, compiler, **kw):
     _schema = "%s." % element.schema if element.schema is not None else ''
     return "DROP TABLE %s%s" % (_schema, element.name)

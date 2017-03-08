@@ -1,0 +1,173 @@
+{
+  "galaxy_properties":{
+    "schema_input":"BRPORTAL",
+    "op":"galaxy_properties",
+    "permanent_table": true,
+    "description":"galaxy_properties description",
+    "tables_gp":[  
+      "lephare_10024875"
+    ]
+  },
+  "photoz":{
+    "op":"photoz",
+    "permanent_table": false,
+    "description":"photo_z description",
+    "schema_input":"BRPORTAL",
+    "tables_zp":[  
+      "dnf_10023851"
+    ],
+    "zmin":0,
+    "zmax":2
+  },
+  "sg_separation":{
+    "op":"sg_separation",
+    "permanent_table": false,
+    "description":"sg_separation description",
+    "schema_input":"BRPORTAL",
+    "tables_sg":[  
+      "modest_10022759"
+    ],
+    "ref_band":"i"
+  },
+  "object_selection":{  
+    "op":"object_selection",
+    "permanent_table":true
+  },
+  "bitmask":{  
+    "op":"bitmask",
+    "schema_input":"BRPORTAL",
+    "permanent_table":false,
+    "description":"bitmask description",
+    "table_coadd_objects_molygon":"y1a1_coadd_objects_molygon",
+    "table_molygon":"y1a1_molygon",
+    "mangle_bitmask":[  
+      "g",
+      "r",
+      "i"
+    ]
+  },
+  "cuts":{  
+    "op":"cuts",
+    "schema_input":"BRPORTAL",
+    "permanent_table":false,
+    "description":"cuts description",
+    "table_coadd_objects":"y1a1_coadd_cosmos_d04_sub_cols",
+    "mag_type":"auto",
+    "sn_cuts":{  
+      "g":3,
+      "r":5
+    },
+    "bright_magnitude":{  
+      "i":17.5
+    },
+    "magnitude_limit":{  
+      "i":22
+    },
+    "color_cuts":{  
+      "gr":[  
+        -1,
+        3
+      ],
+      "ri":[  
+        -1,
+        2.5
+      ],
+      "iz":[  
+        -1,
+        2
+      ]
+    },
+    "sextractor_bands":[  
+      "i",
+      "z",
+      "y"
+    ],
+    "sextractor_flags":[  
+      0,
+      1,
+      2
+    ],
+    "additional_cuts":[  
+      "remove_bbj",
+      "'niter_model",
+      "spreaderr_model",
+      "bad_astronomic_colors"
+    ]
+  },
+  "reduction":{  
+    "op":"reduction",
+    "schema_input":"BRPORTAL",
+    "permanent_table":false,
+    "description":"object selection description",
+    "table_coadd_objects_ring":"y1a1_coadd_objects_pixel_ring"
+  },
+  "footprint":{  
+    "schema_input": "BRPORTAL",
+    "db":"y1a1_exptime_i_10023575",
+    "op":"footprint",
+    "permanent_table":true,
+    "description":"footprint description"
+  },
+  "exposure_time":{
+    "op":"join",
+    "permanent_table":false,
+    "description":"systematic_maps exposure_time"
+  },
+  "exposure_time_i":{
+    "schema_input": "BRPORTAL",
+    "db":"y1a1_exptime_i_10023575",
+    "op":"great_equal",
+    "permanent_table":false,
+    "description":"exposure_time_i description",
+    "band":"g",
+    "value":"600"
+  },
+  "exposure_time_r":{
+    "schema_input": "BRPORTAL",
+    "db":"y1a1_exptime_r_10023575",
+    "op":"great_equal",
+    "permanent_table":false,
+    "description":"exposure_time_r description",
+    "band":"r",
+    "value":"600"
+  },
+  "exposure_time_z":{
+    "schema_input": "BRPORTAL",
+    "db":"y1a1_exptime_z_10023575",
+    "op":"great_equal",
+    "permanent_table":false,
+    "description":"exposure_time_z description",
+    "band":"z",
+    "value":"300"
+  },
+  "mangle_map":{  
+    "op":"join",
+    "permanent_table":false,
+    "description":"mangle_maps description"
+  },
+  "mangle_maps_i":{  
+    "schema_input": "BRPORTAL",
+    "db":"y1a1_mangle_maps_i_10024132",
+    "op":"great_equal",
+    "permanent_table":false,
+    "description":"depth_map description",
+    "band":"g",
+    "value":"0.5"
+  },
+  "mangle_maps_r":{  
+    "schema_input": "BRPORTAL",
+    "db":"y1a1_mangle_maps_r_10024132",
+    "op":"great_equal",
+    "permanent_table":false,
+    "description":"exposure_time_r description",
+    "band":"r",
+    "value":"0.5"
+  },
+  "bad_regions":{  
+    "schema_input": "BRPORTAL",
+    "db":"y1a1_bright_mask_10023572",
+    "op":"bad_regions",
+    "permanent_table":false,
+    "value":"1"
+  }
+}

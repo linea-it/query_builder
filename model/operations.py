@@ -156,8 +156,29 @@ class Reduction(IOperation):
 
 class Cuts(IOperation):
     OPERATION = 'cuts'
-
     BANDS = ['g', 'r', 'i', 'z', 'y']
+
+    MAG_TYPE = {}
+    MAG_TYPE['detmodel'] = 'mag_detmodel'
+    MAG_TYPE['auto'] = 'mag_auto'
+    MAG_TYPE['wavgcalib'] = 'wavgcalib_mag_psf'
+    MAG_TYPE['aper_4'] = 'mag_aper_4'
+    MAG_TYPE['aper_8'] = 'mag_aper_8'
+
+    MAGERR_TYPE = {}
+    MAGERR_TYPE['detmodel'] = 'magerr_detmodel'
+    MAGERR_TYPE['auto'] = 'magerr_auto'
+    MAGERR_TYPE['wavgcalib'] = 'wavg_magerr_psf'
+    MAGERR_TYPE['aper_4'] = 'magerr_aper_4'
+    MAGERR_TYPE['aper_8'] = 'magerr_aper_8'
+
+    @staticmethod
+    def to_mag_column(mag_type, band):
+        return ('%s_%s' % (Cuts.MAG_TYPE[mag_type], band))
+
+    @staticmethod
+    def to_magerr_column(mag_type, band):
+        return ('%s_%s' % (Cuts.MAGERR_TYPE[mag_type], band))
 
     def get_statement(self, params, sub_operations):
         t_reduction = Table(sub_operations['reduction'].save_at(),
@@ -240,7 +261,8 @@ class Cuts(IOperation):
             tmp = []
             for element in params['sn_cuts'].items():
                 band, value = element
-                col = getattr(t_coadd.c, 'magerr_auto_%s' % band)
+                db_col = Cuts.to_magerr_column(params['mag_type'], band)
+                col = getattr(t_coadd.c, db_col)
                 tmp.append(and_(
                         col > literal_column('0'),
                         literal_column('1.086')/col >
@@ -253,7 +275,8 @@ class Cuts(IOperation):
             tmp = []
             for element in params['magnitude_limit'].items():
                 band, value = element
-                col = getattr(t_coadd.c, 'mag_auto_%s' % band)
+                db_col = Cuts.to_mag_column(params['mag_type'], band)
+                col = getattr(t_coadd.c, db_col)
                 tmp.append(col < literal_column(str(value)))
             _where.append(and_(*tmp))
 
@@ -262,7 +285,8 @@ class Cuts(IOperation):
             tmp = []
             for element in params['bright_magnitude'].items():
                 band, value = element
-                col = getattr(t_coadd.c, 'mag_auto_%s' % band)
+                db_col = Cuts.to_mag_column(params['mag_type'], band)
+                col = getattr(t_coadd.c, db_col)
                 tmp.append(col > literal_column(str(value)))
             _where.append(and_(*tmp))
 
@@ -271,8 +295,10 @@ class Cuts(IOperation):
             tmp = []
             for element in params['color_cuts'].items():
                 band, value = element
-                col_max = getattr(t_coadd.c, 'mag_auto_%s' % band[0])
-                col_min = getattr(t_coadd.c, 'mag_auto_%s' % band[1])
+                db_col_max = Cuts.to_mag_column(params['mag_type'], band[0])
+                db_col_min = Cuts.to_mag_column(params['mag_type'], band[1])
+                col_max = getattr(t_coadd.c, db_col_max)
+                col_min = getattr(t_coadd.c, db_col_min)
                 tmp.append(between(literal_column(str(col_max - col_min)),
                                    literal_column(str(value[0])),
                                    literal_column(str(value[1]))))

@@ -20,7 +20,7 @@ class test_operations(unittest.TestCase):
             "sg_separation": ["object_selection"],
             "object_selection": ["bitmask"],
             "bitmask": ["cuts"],
-            "cuts": ["reduction"],
+            "cuts": ["reduction", "zero_point"],
             "reduction": ["footprint"],
             "footprint": ["exposure_time", "mangle_map", "bad_regions"],
             "exposure_time": ["exposure_time_i", "exposure_time_r",
@@ -37,6 +37,12 @@ class test_operations(unittest.TestCase):
     def test_op_combined_maps(self):
         tree = t.Tree(self.tree_desc,
                       self.ops_desc).tree_builder('exposure_time')
+        self.operations = QueryBuilder(tree)
+
+    def test_op_zero_point(self):
+        tree_desc = {'zero_point': []}
+        tree = t.Tree(tree_desc,
+                      self.ops_desc).tree_builder('zero_point')
         self.operations = QueryBuilder(tree)
 
     def test_op_footprint_inner_left(self):

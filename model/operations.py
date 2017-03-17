@@ -237,7 +237,8 @@ class Zero_Point(IOperation):
                                                 'xcorr_sfd98_%s' % _filter)
                 cur_else = col_coadd - col_coadd_xcorr_sfd98
 
-            cases.append(case([(col_coadd == 99, 99), ],
+            cases.append(case([(col_coadd == literal_column('99'),
+                         literal_column('99')), ],
                          else_=cur_else).label(column))
         return cases
 
@@ -296,7 +297,7 @@ class Cuts(IOperation):
                             schema=dal.schema_output)
         t_coadd = Table(params['table_coadd_objects'], dal.metadata,
                         autoload=True,
-                        schema=params['schema_input'])
+                        schema=params['schema_input']).alias('data_set')
 
         # join statement
         stm_join = t_reduction
@@ -369,7 +370,7 @@ class Cuts(IOperation):
         t_cur = t_coadd
         if 'zero_point' in sub_operations:
             t_cur = Table(sub_operations['zero_point'].save_at(), dal.metadata,
-                          autoload=True, schema=dal.schema_output)
+                          autoload=True, schema=dal.schema_output).alias('zero_point')
             stm_join = stm_join.join(t_cur, t_reduction.c.coadd_objects_id ==
                                      t_cur.c.coadd_objects_id)
 

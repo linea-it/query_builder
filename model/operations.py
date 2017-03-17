@@ -475,8 +475,30 @@ class ObjectSelection(IOperation):
         # load tables.
         t_sub_op = Table(sub_op.save_at(), dal.metadata, autoload=True,
                          schema=dal.schema_output)
+        columns = []
+        columns.append(t_sub_op.c.coadd_objects_id)
 
-        stm = select([t_sub_op.c.coadd_objects_id])
+        stm_join = t_sub_op
+        if params['columns_data_set']:
+            t_coadd = Table(params['table_coadd_objects'], dal.metadata,
+                            autoload=True,
+                            schema=params['schema_input']).alias('data_set')
+            stm_join = stm_join.join(t_coadd,
+                                     t_sub_op.c.coadd_objects_id ==
+                                     t_coadd.c.coadd_objects_id)
+            for column in params['columns_data_set']:
+                columns.append(getattr(t_coadd.c, column))
+
+        if params['columns_zero_point']:
+            t_zp = Table(params['table_zp'], dal.metadata, autoload=True,
+                             schema=dal.schema_output).alias('zero_point')
+            stm_join = stm_join.join(t_zp,
+                                     t_sub_op.c.coadd_objects_id ==
+                                     t_zp.c.coadd_objects_id)
+            for column in params['columns_zero_point']:
+                columns.append(getattr(t_zp.c, column))
+
+        stm = select(columns).select_from(stm_join)
         return stm
 
 

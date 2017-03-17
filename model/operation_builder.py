@@ -18,6 +18,7 @@ class OperationBuilder():
     ops[operations.Reduction.OPERATION] = operations.Reduction()
     ops[operations.Cuts.OPERATION] = operations.Cuts()
     ops[operations.Bitmask.OPERATION] = operations.Bitmask()
+    ops[operations.Zero_Point.OPERATION] = operations.Zero_Point()
     ops[operations.ObjectSelection.OPERATION] = operations.ObjectSelection()
     ops[operations.SgSeparation.OPERATION] = operations.SgSeparation()
     ops[operations.PhotoZ.OPERATION] = operations.PhotoZ()

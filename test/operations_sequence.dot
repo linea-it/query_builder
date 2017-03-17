@@ -4,6 +4,7 @@ sg_separation -> object_selection
 object_selection -> bitmask
 bitmask -> cuts
 cuts -> reduction
+cuts -> zero_point
 reduction -> footprint
 footprint -> exposure_time
 exposure_time -> exposure_time_i

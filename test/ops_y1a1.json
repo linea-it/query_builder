@@ -33,6 +33,31 @@
     "op":"object_selection",
     "permanent_table":true
   },
+  "zero_point":{
+    "op":"zero_point", 
+    "description":"zero_point description",
+    "schema_input":"y1a1_coadd_cosmos_d04",
+    "table_coadd_objects":"coadd_objects",
+    "schema_zp":"zeropoint_correction",
+    "table_zp":"slr_zeropoints_10023395",
+    "permanent_table":true,
+    "correction_type":"extinction_and_slr",
+    "add_slr_shift_columns":true,
+    "add_cuts_columns":true,
+    "mag_type":"detmodel",
+    "columns":[
+      "mag_model_g",
+      "mag_model_r",
+      "mag_model_i",
+      "mag_model_z",
+      "mag_model_y",
+      "mag_auto_g",
+      "mag_auto_r",
+      "mag_auto_i",
+      "mag_auto_z",
+      "mag_auto_y"
+    ]
+  },
   "bitmask":{  
     "op":"bitmask",
     "schema_input":"y1a1_coadd_cosmos_d04",
@@ -52,7 +77,7 @@
     "permanent_table":false,
     "description":"cuts description",
     "table_coadd_objects":"coadd_objects",
-    "mag_type":"auto",
+    "mag_type":"detmodel",
     "sn_cuts":{  
       "g":3,
       "r":5

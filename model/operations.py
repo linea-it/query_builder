@@ -1,5 +1,5 @@
 from sqlalchemy.sql import select, and_, or_
-from sqlalchemy import Table, cast, Integer, func
+from sqlalchemy import Table, cast, Integer, func, case
 from sqlalchemy.sql.expression import literal_column, between
 
 from utils.db import dal
@@ -99,8 +99,8 @@ class Footprint(IOperation):
 
         # load tables.
         # review from data.
-        table_footprint = Table(params['db'], dal.metadata,
-                                autoload=True, schema=params['schema_input'])
+        table_footprint = Table(params['db'], dal.metadata, autoload=True,
+                                schema=params['schema_input'])
         sub_tables_inner = []
         for table in inner_join_ops:
             sub_tables_inner.append(Table(table.save_at(), dal.metadata,
@@ -154,6 +154,116 @@ class Reduction(IOperation):
         return stm
 
 
+class Zero_Point(IOperation):
+    OPERATION = 'zero_point'
+
+    BANDS = ['g', 'r', 'i', 'z', 'y']
+    CORRECTION_TYPES = {
+        "extinction_and_slr",
+        "only_extinction",
+        "sfd98"
+        }
+
+    def __init__(self):
+        self.t_coadd = None
+        self.t_zp = None
+        self.columns = None
+
+    def get_statement(self, params, sub_operations):
+        if params['correction_type'] not in Zero_Point.CORRECTION_TYPES:
+            raise "Correction_type unvailable."
+
+        # load tables.
+        self.t_coadd = Table(params['table_coadd_objects'], dal.metadata,
+                             autoload=True,
+                             schema=params['schema_input']).alias('data_set')
+
+        self.t_zp = Table(params['table_zp'], dal.metadata, autoload=True,
+                          schema=params['schema_zp']).alias('zero_point')
+
+        columns_apply_zp = Zero_Point.columns_to_apply_zp(params['columns'])
+        columns_cuts = self.get_columns_from_cuts_op(params, sub_operations)
+        self.columns = columns_apply_zp | columns_cuts
+
+        corrected_columns = self.get_columns_corrected(params, sub_operations)
+        slr_columns = self.get_slr_shift_corrected(params, sub_operations)
+
+        stm_join = self.t_coadd
+        stm_join = stm_join.join(self.t_zp, self.t_zp.c.coadd_objects_id ==
+                                 self.t_coadd.c.coadd_objects_id)
+        all_columns = [self.t_coadd.c.coadd_objects_id] + corrected_columns + slr_columns
+        stm = select(all_columns).select_from(stm_join)
+        return stm
+
+    def get_slr_shift_corrected(self, params, sub_operations):
+        slr = []
+        if params['add_slr_shift_columns']:
+            for band in Zero_Point.BANDS:
+                cur_slr = ""
+
+                if params['correction_type'] == 'extinction_and_slr':
+                    col_zp_ext = getattr(self.t_zp.c, "ext_%s" % band)
+                    col_zp_minus = getattr(self.t_zp.c,
+                                           "zp_minus_ext_%s" % band)
+                    cur_slr = - col_zp_ext + col_zp_minus
+                elif params['correction_type'] == 'only_extinction':
+                    col_zp_ext = getattr(self.t_zp.c, "ext_%s" % band)
+                    cur_slr = - col_zp_ext
+                elif params['correction_type'] == 'sfd98':
+                    col_coadd_xcorr_sfd98 = getattr(self.t_coadd.c,
+                                                    'xcorr_sfd98_%s' % band)
+                    cur_slr = - col_coadd_xcorr_sfd98
+
+                slr.append((cur_slr).label('slr_shift_%s' % band))
+        return slr
+
+    def get_columns_corrected(self, params, sub_operations):
+        cases = []
+        for column in self.columns:
+            _filter = column[-1]
+            col_coadd = getattr(self.t_coadd.c, column)
+            cur_else = ""
+
+            if params['correction_type'] == 'extinction_and_slr':
+                col_zp_ext = getattr(self.t_zp.c, "ext_%s" % _filter)
+                col_zp_minus = getattr(self.t_zp.c,
+                                       "zp_minus_ext_%s" % _filter)
+                cur_else = col_coadd - col_zp_ext + col_zp_minus
+            elif params['correction_type'] == 'only_extinction':
+                col_zp_ext = getattr(self.t_zp.c, "ext_%s" % _filter)
+                cur_else = col_coadd - col_zp_ext
+            elif params['correction_type'] == 'sfd98':
+                col_coadd_xcorr_sfd98 = getattr(self.t_coadd.c,
+                                                'xcorr_sfd98_%s' % _filter)
+                cur_else = col_coadd - col_coadd_xcorr_sfd98
+
+            cases.append(case([(col_coadd == 99, 99), ],
+                         else_=cur_else).label(column))
+        return cases
+
+    def get_columns_from_cuts_op(self, params, sub_operations):
+        columns = set()
+        if params['add_cuts_columns']:
+            for band in Cuts.BANDS:
+                columns.add(Cuts.to_magerr_column(params['mag_type'], band))
+                columns.add(Cuts.to_mag_column(params['mag_type'], band))
+        return columns
+
+    @staticmethod
+    def is_zero_point_column(column):
+        if 'mag_' in column:
+            return True
+        return False
+
+    @staticmethod
+    def columns_to_apply_zp(columns):
+        columns_zp = set()
+        for column in columns:
+            if Zero_Point.is_zero_point_column(column):
+                columns_zp.add(column)
+        return columns_zp
+
+
 class Cuts(IOperation):
     OPERATION = 'cuts'
     BANDS = ['g', 'r', 'i', 'z', 'y']
@@ -185,7 +295,8 @@ class Cuts(IOperation):
                             dal.metadata, autoload=True,
                             schema=dal.schema_output)
         t_coadd = Table(params['table_coadd_objects'], dal.metadata,
-                        autoload=True, schema=params['schema_input'])
+                        autoload=True,
+                        schema=params['schema_input'])
 
         # join statement
         stm_join = t_reduction
@@ -255,14 +366,20 @@ class Cuts(IOperation):
                     )
                 ))
 
-        # REVIEW: zero_point is not beeing applied. mag_auto is hardcoded.
+        t_cur = t_coadd
+        if 'zero_point' in sub_operations:
+            t_cur = Table(sub_operations['zero_point'].save_at(), dal.metadata,
+                          autoload=True, schema=dal.schema_output)
+            stm_join = stm_join.join(t_cur, t_reduction.c.coadd_objects_id ==
+                                     t_cur.c.coadd_objects_id)
+
         # signal to noise cuts
         if 'sn_cuts' in params:
             tmp = []
             for element in params['sn_cuts'].items():
                 band, value = element
                 db_col = Cuts.to_magerr_column(params['mag_type'], band)
-                col = getattr(t_coadd.c, db_col)
+                col = getattr(t_cur.c, db_col)
                 tmp.append(and_(
                         col > literal_column('0'),
                         literal_column('1.086')/col >
@@ -276,7 +393,7 @@ class Cuts(IOperation):
             for element in params['magnitude_limit'].items():
                 band, value = element
                 db_col = Cuts.to_mag_column(params['mag_type'], band)
-                col = getattr(t_coadd.c, db_col)
+                col = getattr(t_cur.c, db_col)
                 tmp.append(col < literal_column(str(value)))
             _where.append(and_(*tmp))
 
@@ -286,7 +403,7 @@ class Cuts(IOperation):
             for element in params['bright_magnitude'].items():
                 band, value = element
                 db_col = Cuts.to_mag_column(params['mag_type'], band)
-                col = getattr(t_coadd.c, db_col)
+                col = getattr(t_cur.c, db_col)
                 tmp.append(col > literal_column(str(value)))
             _where.append(and_(*tmp))
 
@@ -297,8 +414,8 @@ class Cuts(IOperation):
                 band, value = element
                 db_col_max = Cuts.to_mag_column(params['mag_type'], band[0])
                 db_col_min = Cuts.to_mag_column(params['mag_type'], band[1])
-                col_max = getattr(t_coadd.c, db_col_max)
-                col_min = getattr(t_coadd.c, db_col_min)
+                col_max = getattr(t_cur.c, db_col_max)
+                col_min = getattr(t_cur.c, db_col_min)
                 tmp.append(between(literal_column(str(col_max - col_min)),
                                    literal_column(str(value[0])),
                                    literal_column(str(value[1]))))

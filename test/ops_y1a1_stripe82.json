@@ -1,0 +1,218 @@
+{  
+  "galaxy_properties":{
+    "schema_input": "data_preparation",
+    "op":"galaxy_properties",
+    "permanent_table": true,
+    "description":"galaxy_properties description",
+    "tables_gp":[  
+      "lephare_10020532"
+    ]
+  },
+  "photoz":{
+    "op":"photoz",
+    "permanent_table": false,
+    "description":"photo_z description",
+    "schema_input": "photoz_compute",
+    "tables_zp":[  
+      "mlz_10021996"
+    ],
+    "zmin":0,
+    "zmax":2
+  },
+  "sg_separation":{
+    "op":"sg_separation",
+    "permanent_table": false,
+    "description":"sg_separation description",
+    "schema_input": "sg_separation",
+    "tables_sg":[  
+      "y1_modest_v3_10023142"
+    ],
+    "ref_band":"i"
+  },
+  "object_selection":{  
+    "op":"object_selection",
+    "permanent_table":true,
+    "schema_input":"y1a1_coadd_stripe82",
+    "table_coadd_objects":"coadd_objects",
+    "table_zp":"zero_point_table",
+    "columns_zero_point":[
+      "mag_model_z",
+      "mag_model_y",
+      "mag_auto_g",
+      "mag_auto_r",
+      "slr_shift_g",
+      "slr_shift_r"
+    ],
+    "columns_data_set":[
+      "a_image",
+      "alphawin_j2000_y",
+      "bwin_image_r",
+      "chi2_psf_r",
+      "ra",
+      "dec"
+    ]
+  },
+  "zero_point":{
+    "op":"zero_point", 
+    "description":"zero_point description",
+    "schema_input":"y1a1_coadd_stripe82",
+    "table_coadd_objects":"coadd_objects",
+    "schema_zp":"zeropoint_correction",
+    "table_zp":"slr_zeropoints_10022644",
+    "permanent_table":true,
+    "correction_type":"extinction_and_slr",
+    "add_slr_shift_columns":true,
+    "add_cuts_columns":true,
+    "mag_type":"auto",
+    "columns":[
+      "mag_model_g",
+      "mag_model_r",
+      "mag_model_i",
+      "mag_model_z",
+      "mag_model_y",
+      "mag_auto_g",
+      "mag_auto_r",
+      "mag_auto_i",
+      "mag_auto_z",
+      "mag_auto_y"
+    ]
+  },
+  "bitmask":{  
+    "op":"bitmask",
+    "schema_input":"y1a1_coadd_stripe82",
+    "permanent_table":false,
+    "description":"bitmask description",
+    "table_coadd_objects_molygon":"coadd_objects_molygon",
+    "table_molygon":"molygon",
+    "mangle_bitmask":[  
+      "g",
+      "r",
+      "i"
+    ]
+  },
+  "cuts":{  
+    "op":"cuts",
+    "schema_input":"y1a1_coadd_stripe82",
+    "permanent_table":false,
+    "description":"cuts description",
+    "table_coadd_objects":"coadd_objects",
+    "mag_type":"auto",
+    "bright_magnitude":{  
+      "i":15
+    },
+    "magnitude_limit":{  
+      "i":30
+    },
+    "color_cuts":{  
+      "gr":[  
+        -2,
+        4
+      ],
+      "ri":[  
+        -2,
+        4
+      ],
+      "iz":[  
+        -2,
+        4
+      ],
+      "zy":[  
+        -2,
+        4
+      ]
+    },
+    "mangle_bitmask":[  
+      "i"
+    ],
+    "sextractor_bands":[  
+      "i"
+    ],
+    "sextractor_flags":[  
+      0,
+      1,
+      2
+    ],
+    "additional_cuts":[  
+      "remove_bbj",
+      "'niter_model",
+      "spreaderr_model",
+      "bad_astronomic_colors"
+    ]
+  },
+  "reduction":{  
+    "op":"reduction",
+    "schema_input":"y1a1_coadd_stripe82",
+    "permanent_table":false,
+    "description":"object selection description",
+    "table_coadd_objects_ring":"coadd_objects_pixel_4096_ring"
+  },
+  "footprint":{  
+    "schema_input":"systematic_maps",
+    "db":"y1a1_coadd_stripe82_4096_exptime_i_10022585",
+    "op":"footprint",
+    "permanent_table":true,
+    "description":"footprint description"
+  },
+  "exposure_time":{  
+    "op":"join",
+    "permanent_table":false,
+    "description":"systematic_maps exposure_time"
+  },
+  "exposure_time_i":{  
+    "schema_input":"systematic_maps",
+    "db":"y1a1_coadd_stripe82_4096_exptime_i_10022585",
+    "op":"great_equal",
+    "permanent_table":false,
+    "description":"exposure_time_i description",
+    "band":"g",
+    "value":"150"
+  },
+  "exposure_time_r":{  
+    "schema_input":"systematic_maps",
+    "db":"y1a1_coadd_stripe82_4096_exptime_r_10022585",
+    "op":"great_equal",
+    "permanent_table":false,
+    "description":"exposure_time_r description",
+    "band":"r",
+    "value":"100"
+  },
+  "exposure_time_z":{  
+    "schema_input":"systematic_maps",
+    "db":"y1a1_coadd_stripe82_4096_exptime_z_10022585",
+    "op":"great_equal",
+    "permanent_table":false,
+    "description":"exposure_time_z description",
+    "band":"z",
+    "value":"100"
+  },
+  "mangle_map":{  
+    "op":"join",
+    "permanent_table":false,
+    "description":"mangle_maps description"
+  },
+  "mangle_maps_i":{  
+    "schema_input":"y1a1_coadd_stripe82",
+    "db":"mangle_maps_4096_ring_frac_i_10024144",
+    "op":"great_equal",
+    "permanent_table":false,
+    "description":"depth_map description",
+    "band":"g",
+    "value":"0.5"
+  },
+  "mangle_maps_r":{  
+    "schema_input":"y1a1_coadd_stripe82",
+    "db":"mangle_maps_4096_ring_frac_r_10024144",
+    "op":"great_equal",
+    "permanent_table":false,
+    "description":"exposure_time_r description",
+    "band":"r",
+    "value":"0.5"
+  },
+  "bad_regions":{  
+    "schema_input":"bright_mask",
+    "db":"y1a1_coadd_stripe82_bright_mask_4096_ring_10023651",
+    "op":"bad_regions",
+    "permanent_table":false,
+    "value":"1"
+  }
+}

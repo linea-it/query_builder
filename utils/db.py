@@ -34,7 +34,6 @@ class DataAccessLayer():
             str_con += db['database']
         else:
             db['database'] = None
-        print(str_con)
         return str_con
 
 dal = DataAccessLayer()

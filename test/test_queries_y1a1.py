@@ -1,4 +1,7 @@
 import unittest
+from sqlalchemy.engine import reflection
+from sqlalchemy.schema import CreateSchema, DropSchema
+from sqlalchemy import create_engine
 
 from utils.db import dal, DataAccessLayer
 
@@ -8,18 +11,28 @@ from utils import util
 
 
 class test_operations(unittest.TestCase):
-    db = {
-        'dialect': 'postgresql',
-        'driver': 'psycopg2',
-        'username': 'gavo',
-        'password': 'gavo',
-        'host': 'localhost',
-        'port': '25432',
-    }
-    dal.db_init(DataAccessLayer.str_connection(db),
-                schema_output='tst_oracle_output')
-
     def setUp(self):
+        # set initial configs.
+        db = {
+            'dialect': 'postgresql',
+            'driver': 'psycopg2',
+            'username': 'gavo',
+            'password': 'gavo',
+            'host': 'localhost',
+            'port': '25432',
+        }
+        self._schema_output = 'tst_oracle_output'
+
+        # Recreate schema
+        str_con = DataAccessLayer.str_connection(db)
+        self.eng = create_engine(str_con)
+
+        insp = reflection.Inspector.from_engine(self.eng)
+        if self._schema_output in insp.get_schema_names():
+            self.eng.execute(DropSchema(self._schema_output, cascade=True))
+        self.eng.execute(CreateSchema(self._schema_output))
+
+        dal.db_init(str_con, schema_output=self._schema_output)
         ops_path = "test/ops_y1a1.json"
         self.ops_desc = util.load_json(ops_path)
         self.tree_desc = {
@@ -79,7 +92,9 @@ class test_operations(unittest.TestCase):
         self.operations = QueryBuilder(tree)
 
     def tearDown(self):
-        self.operations.drop_all_tables()
+        insp = reflection.Inspector.from_engine(self.eng)
+        if self._schema_output in insp.get_schema_names():
+            self.eng.execute(DropSchema(self._schema_output, cascade=True))
 
 
 if __name__ == '__main__':

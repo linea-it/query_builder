@@ -7,13 +7,6 @@ import copy
 from model import intermediate_table
 
 
-def create_workflow_inverse_edges(graph):
-    inv_graph = nx.DiGraph()
-    for edge in list(graph.edges()):
-        inv_graph.add_edge(edge[1], edge[0])
-    return inv_graph
-
-
 def nodes_no_neighborhood(graph, nodes):
     _nodes = []
     for node in nodes:
@@ -37,7 +30,6 @@ class QueryBuilder():
         self.thread_pools = thread_pools
 
         self.workflow = workflow
-        self.inv_workflow = create_workflow_inverse_edges(self.workflow)
         self.updated_workflow = copy.deepcopy(self.workflow)
 
         self.create_tables(nodes_no_neighborhood(self.updated_workflow,
@@ -66,12 +58,12 @@ class QueryBuilder():
                                                       sub_ops_dict)
         self.operations[_id] = obj_op
 
-        for node in nx.edges(self.inv_workflow, _id):
-            self.updated_workflow.remove_edge(node[1], node[0])
+        for node in self.workflow.predecessors(_id):
+            self.updated_workflow.remove_edge(node, _id)
 
         with QueryBuilder.lock:
             nodes = nodes_no_neighborhood(self.updated_workflow,
-                                          self.inv_workflow.neighbors(_id))
+                                          self.workflow.predecessors(_id))
 
         self.create_tables(nodes)
         return

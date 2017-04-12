@@ -7,7 +7,6 @@ from sqlalchemy import create_engine
 from utils.db import dal, DataAccessLayer
 
 from model.query_builder import QueryBuilder
-import model.tree as t
 from utils import util
 
 

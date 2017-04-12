@@ -148,7 +148,7 @@
   },
   "footprint":{  
     "schema_input":"systematic_maps",
-    "db":"y1a1_coadd_stripe82_4096_exptime_i_10022585",
+    "db":"y1a1_coadd_stripe82_4096_exptime_i",
     "op":"footprint",
     "permanent_table":true,
     "description":"footprint description"
@@ -160,7 +160,7 @@
   },
   "exposure_time_i":{  
     "schema_input":"systematic_maps",
-    "db":"y1a1_coadd_stripe82_4096_exptime_i_10022585",
+    "db":"y1a1_coadd_stripe82_4096_exptime_i",
     "op":"great_equal",
     "permanent_table":false,
     "description":"exposure_time_i description",
@@ -169,7 +169,7 @@
   },
   "exposure_time_r":{  
     "schema_input":"systematic_maps",
-    "db":"y1a1_coadd_stripe82_4096_exptime_r_10022585",
+    "db":"y1a1_coadd_stripe82_4096_exptime_r",
     "op":"great_equal",
     "permanent_table":false,
     "description":"exposure_time_r description",
@@ -178,7 +178,7 @@
   },
   "exposure_time_z":{  
     "schema_input":"systematic_maps",
-    "db":"y1a1_coadd_stripe82_4096_exptime_z_10022585",
+    "db":"y1a1_coadd_stripe82_4096_exptime_z",
     "op":"great_equal",
     "permanent_table":false,
     "description":"exposure_time_z description",

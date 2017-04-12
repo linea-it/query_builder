@@ -1,5 +1,6 @@
 from utils.db import dal, DataAccessLayer
 from utils import util
+import networkx as nx
 
 from model.query_builder import QueryBuilder
 import model.tree as t
@@ -12,15 +13,11 @@ if __name__ == "__main__":
     dal.db_init(DataAccessLayer.str_connection(db),
                 schema_output=settings.SCHEMA_OUTPUT)
 
-    ops_desc = util.load_json(settings.OPS_DESCRIPTION_FILE)
-    tree_desc = util.dot_file_to_dict(settings.OPS_SEQUENCE_FILE)
-    tree = t.Tree(tree_desc, ops_desc).tree_builder('galaxy_properties')
+    op_description = util.load_json(settings.OPS_DESCRIPTION_FILE)
+    G=nx.read_adjlist(settings.OPS_SEQUENCE_FILE, create_using=nx.DiGraph())
 
-    print(tree)
-
-    builder = QueryBuilder(tree, thread_pools=10)
-    operations = builder.get()
-    # traverse_post_order(tree)
+    builder = QueryBuilder(op_description, G)
+    operations = builder.get_operations()
 
     for k, v in operations.items():
         print(k)

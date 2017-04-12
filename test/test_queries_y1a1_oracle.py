@@ -71,7 +71,7 @@ class test_operations(unittest.TestCase):
         self.operations = QueryBuilder(tree)
 
     def tearDown(self):
-        ops = self.operations.get()
+        ops = self.operations.get_operations()
         self.operations.drop_all_tables()
 
 

@@ -1,0 +1,10 @@
+galaxy_properties photoz
+photoz sg_separation
+sg_separation object_selection
+object_selection bitmask
+bitmask cuts
+cuts reduction zero_point
+reduction footprint
+footprint exposure_time mangle_map bad_regions
+exposure_time exposure_time_i exposure_time_r exposure_time_z
+mangle_map mangle_maps_i mangle_maps_r

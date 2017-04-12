@@ -4,6 +4,7 @@ import networkx as nx
 from threading import Thread, Lock
 import copy
 
+from model import workflow_builder as wb
 from model import intermediate_table
 
 
@@ -23,13 +24,12 @@ managing the construction in the right order allowing parallelism.
 class QueryBuilder():
     lock = Lock()
 
-    def __init__(self, op_description, workflow, thread_pools=1):
+    def __init__(self, op_description, workflow, root_node=None):
         self.operations = OrderedDict()
-
         self.op_description = op_description
-        self.thread_pools = thread_pools
 
-        self.workflow = workflow
+        self.workflow = wb.WorkflowBuilder(workflow,
+                                           root_node=root_node).get()
         self.updated_workflow = copy.deepcopy(self.workflow)
 
         self.create_tables(nodes_no_neighborhood(self.updated_workflow,
@@ -51,7 +51,7 @@ class QueryBuilder():
 
     def _run(self, _id):
 
-        sub_ops_list = [i[1] for i in nx.edges(self.workflow, _id)]
+        sub_ops_list = self.workflow.successors(_id)
         sub_ops_dict = {k:self.operations[k] for k in sub_ops_list if k in self.operations}
         self.op_description[_id]['name'] = _id
         obj_op = intermediate_table.IntermediateTable(self.op_description[_id],
@@ -68,7 +68,7 @@ class QueryBuilder():
         self.create_tables(nodes)
         return
 
-    def get(self):
+    def get_operations(self):
         """
         Returns all the operations through a ordereddict where the keys are
         the operations name and the value is the operation.

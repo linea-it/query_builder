@@ -1,6 +1,6 @@
 # OPERATIONS_FILE = 'test/config_devel2/galaxy_properties.json'
 OPS_DESCRIPTION_FILE = 'test/ops_y1a1.json'
-OPS_SEQUENCE_FILE = 'test/operations_sequence.dot'
+OPS_SEQUENCE_FILE = 'test/operations_sequence.al'
 
 SCHEMA_OUTPUT = 'tst_oracle_output'
 

@@ -34,11 +34,9 @@ class IntermediateTable():
             self._columns = table.c
             self._number_of_rows = con.execute(
                     select([func.count()]).select_from(table)).scalar()
-        #     stmt = select([table])
-        #     self._data_table = con.execute(stmt).fetchall()
 
     def __str__(self):
-        return (str(self._operation))
+        return str(self._operation)
 
     def operation_name(self):
         return self._params['name']

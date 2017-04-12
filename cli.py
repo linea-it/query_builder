@@ -3,7 +3,6 @@ from utils import util
 import networkx as nx
 
 from model.query_builder import QueryBuilder
-import model.tree as t
 
 import settings
 

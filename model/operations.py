@@ -154,7 +154,7 @@ class Reduction(IOperation):
         return stm
 
 
-class Zero_Point(IOperation):
+class ZeroPoint(IOperation):
     OPERATION = 'zero_point'
 
     BANDS = ['g', 'r', 'i', 'z', 'y']
@@ -170,7 +170,7 @@ class Zero_Point(IOperation):
         self.columns = None
 
     def get_statement(self, params, sub_operations):
-        if params['correction_type'] not in Zero_Point.CORRECTION_TYPES:
+        if params['correction_type'] not in ZeroPoint.CORRECTION_TYPES:
             raise "Correction_type unvailable."
 
         # load tables.
@@ -181,7 +181,7 @@ class Zero_Point(IOperation):
         self.t_zp = Table(params['table_zp'], dal.metadata, autoload=True,
                           schema=params['schema_zp']).alias('zero_point')
 
-        columns_apply_zp = Zero_Point.columns_to_apply_zp(params['columns'])
+        columns_apply_zp = ZeroPoint.columns_to_apply_zp(params['columns'])
         columns_cuts = self.get_columns_from_cuts_op(params, sub_operations)
         self.columns = columns_apply_zp | columns_cuts
 
@@ -198,7 +198,7 @@ class Zero_Point(IOperation):
     def get_slr_shift_corrected(self, params, sub_operations):
         slr = []
         if params['add_slr_shift_columns']:
-            for band in Zero_Point.BANDS:
+            for band in ZeroPoint.BANDS:
                 cur_slr = ""
 
                 if params['correction_type'] == 'extinction_and_slr':
@@ -260,7 +260,7 @@ class Zero_Point(IOperation):
     def columns_to_apply_zp(columns):
         columns_zp = set()
         for column in columns:
-            if Zero_Point.is_zero_point_column(column):
+            if ZeroPoint.is_zero_point_column(column):
                 columns_zp.add(column)
         return columns_zp
 

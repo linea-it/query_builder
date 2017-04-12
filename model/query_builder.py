@@ -1,5 +1,4 @@
 from collections import OrderedDict
-from random import randint
 import networkx as nx
 from threading import Thread, Lock
 import copy

@@ -1,4 +1,4 @@
-from model import operations
+from model import operations as op
 
 
 """
@@ -11,18 +11,18 @@ condition to create the apropriate class.
 
 class OperationBuilder():
     ops = {}
-    ops[operations.GreatEqual.OPERATION] = operations.GreatEqual()
-    ops[operations.CombinedMaps.OPERATION] = operations.CombinedMaps()
-    ops[operations.BadRegions.OPERATION] = operations.BadRegions()
-    ops[operations.Footprint.OPERATION] = operations.Footprint()
-    ops[operations.Reduction.OPERATION] = operations.Reduction()
-    ops[operations.Cuts.OPERATION] = operations.Cuts()
-    ops[operations.Bitmask.OPERATION] = operations.Bitmask()
-    ops[operations.Zero_Point.OPERATION] = operations.Zero_Point()
-    ops[operations.ObjectSelection.OPERATION] = operations.ObjectSelection()
-    ops[operations.SgSeparation.OPERATION] = operations.SgSeparation()
-    ops[operations.PhotoZ.OPERATION] = operations.PhotoZ()
-    ops[operations.GalaxyProperties.OPERATION] = operations.GalaxyProperties()
+    ops[op.GreatEqual.OPERATION] = op.GreatEqual()
+    ops[op.CombinedMaps.OPERATION] = op.CombinedMaps()
+    ops[op.BadRegions.OPERATION] = op.BadRegions()
+    ops[op.Footprint.OPERATION] = op.Footprint()
+    ops[op.Reduction.OPERATION] = op.Reduction()
+    ops[op.Cuts.OPERATION] = op.Cuts()
+    ops[op.Bitmask.OPERATION] = op.Bitmask()
+    ops[op.ZeroPoint.OPERATION] = op.ZeroPoint()
+    ops[op.ObjectSelection.OPERATION] = op.ObjectSelection()
+    ops[op.SgSeparation.OPERATION] = op.SgSeparation()
+    ops[op.PhotoZ.OPERATION] = op.PhotoZ()
+    ops[op.GalaxyProperties.OPERATION] = op.GalaxyProperties()
 
     @staticmethod
     def create(operation_type):

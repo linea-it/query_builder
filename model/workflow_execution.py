@@ -9,25 +9,32 @@ are ready to execute and manages the parallelism.
 """
 
 
-def nodes_no_neighborhood(graph, nodes):
-    _nodes = []
-    for node in nodes:
-        if len(nx.edges(graph, node)) == 0:
-            _nodes.append(node)
-    return _nodes
+def nodes_no_predecessors(graph, nodes):
+    return [node for node in nodes if len(graph.predecessors(node)) == 0]
+
+
+def nodes_no_successors(graph, nodes):
+    return [node for node in nodes if len(graph.successors(node)) == 0]
 
 
 class WorkflowExecution():
 
-    def __init__(self, workflow, set_event_node_ready):
+    def __init__(self, workflow_builder, set_event_node_ready, set_event_node_free):
         self.lock = Lock()
 
+        # callback - it is called from workflow_execution when a node is ready to execute.
         self._set_event_node_ready = set_event_node_ready
-        self.workflow = workflow
+        # callback - it is called from workflow_execution when a node is no used by others nodes.
+        self._set_event_node_free = set_event_node_free
+
+        self.workflow = workflow_builder.get()
 
         self.updated_workflow = copy.deepcopy(self.workflow)
-        self.create_tables(nodes_no_neighborhood(self.updated_workflow,
-                                                 self.updated_workflow.nodes()))
+        self.create_tables(nodes_no_successors(self.updated_workflow,
+                                                       self.updated_workflow.nodes()))
+
+        # root node
+        self._set_event_node_free([workflow_builder.get_root_node()])
 
     def create_tables(self, nodes):
         if nodes:
@@ -41,17 +48,18 @@ class WorkflowExecution():
 
             for thread in thread_list:
                 thread.join()
-        return
 
-    def _run(self, _id):
-        self._set_event_node_ready(_id)
+    def _run(self, node):
+        self._set_event_node_ready(node)
 
-        for node in self.workflow.predecessors(_id):
-            self.updated_workflow.remove_edge(node, _id)
+        # remove predecessors edges
+        for _node in self.workflow.predecessors(node):
+            self.updated_workflow.remove_edge(_node, node)
 
         with self.lock:
-            nodes = nodes_no_neighborhood(self.updated_workflow,
-                                          self.workflow.predecessors(_id))
+            nodes = nodes_no_successors(self.updated_workflow,
+                                        self.workflow.predecessors(node))
+            self._set_event_node_free(nodes_no_predecessors(self.updated_workflow,
+                                                            self.workflow.successors(node)))
 
         self.create_tables(nodes)
-        return

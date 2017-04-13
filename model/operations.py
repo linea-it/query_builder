@@ -57,9 +57,9 @@ class CombinedMaps(IOperation):
         # join statement
         stm = select([sub_tables[0]])
         stm_join = sub_tables[0]
-        for i in range(1, len(sub_tables)):
-            stm_join = stm_join.join(sub_tables[i], sub_tables[i-1].c.pixel ==
-                                     sub_tables[i].c.pixel)
+        for table in sub_tables[1:]:
+            stm_join = stm_join.join(table, sub_tables[0].c.pixel ==
+                                     table.c.pixel)
         stm = stm.select_from(stm_join)
         return stm
 

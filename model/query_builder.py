@@ -11,7 +11,7 @@ managing the construction in the right order allowing parallelism.
 """
 
 
-class QueryBuilder():
+class QueryBuilder:
     def __init__(self, op_description, workflow, root_node=None):
         self.operations = OrderedDict()
 
@@ -25,10 +25,11 @@ class QueryBuilder():
 
     def set_event_node_ready(self, node):
         sub_ops_list = self.workflow.successors(node)
-        sub_ops_dict = {k:self.operations[k] for k in sub_ops_list if k in self.operations}
+        sub_ops_dict = {k: self.operations[k] for k in sub_ops_list
+                        if k in self.operations}
         self.op_description[node]['name'] = node
-        obj_op = intermediate_table.IntermediateTable(self.op_description[node],
-                                                      sub_ops_dict)
+        obj_op = intermediate_table.IntermediateTable(
+                self.op_description[node], sub_ops_dict)
         self.operations[node] = obj_op
 
     def set_event_node_free(self, nodes):

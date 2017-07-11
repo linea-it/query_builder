@@ -3,8 +3,6 @@ from sqlalchemy.sql.expression import bindparam, ClauseElement, Executable
 from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.sql.elements import ColumnElement, Visitable, Grouping
 from sqlalchemy.sql.operators import custom_op, is_precedent
-from sqlalchemy.dialects import oracle
-from sqlalchemy.sql.expression import literal_column
 
 
 """

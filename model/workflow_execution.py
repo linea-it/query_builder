@@ -1,4 +1,3 @@
-import networkx as nx
 from threading import Thread, Lock
 import copy
 
@@ -19,19 +18,24 @@ def nodes_no_successors(graph, nodes):
 
 class WorkflowExecution():
 
-    def __init__(self, workflow_builder, set_event_node_ready, set_event_node_free):
+    def __init__(self, workflow_builder, set_event_node_ready,
+                 set_event_node_free):
+        """
+        Args:
+            set_event_node_ready - A callback called from workflow_execution
+            when a node is ready to execute.
+            set_event_node_free - A callback called from workflow_execution
+            when a node is no used by others nodes.
+        """
         self.lock = Lock()
-
-        # callback - it is called from workflow_execution when a node is ready to execute.
         self._set_event_node_ready = set_event_node_ready
-        # callback - it is called from workflow_execution when a node is no used by others nodes.
         self._set_event_node_free = set_event_node_free
 
         self.workflow = workflow_builder.get()
 
         self.updated_workflow = copy.deepcopy(self.workflow)
         self.create_tables(nodes_no_successors(self.updated_workflow,
-                                                       self.updated_workflow.nodes()))
+                                               self.updated_workflow.nodes()))
 
         # root node
         self._set_event_node_free([workflow_builder.get_root_node()])
@@ -59,7 +63,8 @@ class WorkflowExecution():
         with self.lock:
             nodes = nodes_no_successors(self.updated_workflow,
                                         self.workflow.predecessors(node))
-            self._set_event_node_free(nodes_no_predecessors(self.updated_workflow,
-                                                            self.workflow.successors(node)))
+            self._set_event_node_free(
+                nodes_no_predecessors(self.updated_workflow,
+                                      self.workflow.successors(node)))
 
         self.create_tables(nodes)

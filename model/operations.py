@@ -191,7 +191,8 @@ class ZeroPoint(IOperation):
         stm_join = self.t_coadd
         stm_join = stm_join.join(self.t_zp, self.t_zp.c.coadd_objects_id ==
                                  self.t_coadd.c.coadd_objects_id)
-        all_columns = [self.t_coadd.c.coadd_objects_id] + corrected_columns + slr_columns
+        all_columns = [self.t_coadd.c.coadd_objects_id] + corrected_columns +\
+            slr_columns
         stm = select(all_columns).select_from(stm_join)
         return stm
 
@@ -370,7 +371,8 @@ class Cuts(IOperation):
         t_cur = t_coadd
         if 'zero_point' in sub_operations:
             t_cur = Table(sub_operations['zero_point'].save_at(), dal.metadata,
-                          autoload=True, schema=dal.schema_output).alias('zero_point')
+                          autoload=True, schema=dal.schema_output).\
+                          alias('zero_point')
             stm_join = stm_join.join(t_cur, t_reduction.c.coadd_objects_id ==
                                      t_cur.c.coadd_objects_id)
 
@@ -491,7 +493,7 @@ class ObjectSelection(IOperation):
 
         if params['columns_zero_point']:
             t_zp = Table(params['table_zp'], dal.metadata, autoload=True,
-                             schema=dal.schema_output).alias('zero_point')
+                         schema=dal.schema_output).alias('zero_point')
             stm_join = stm_join.join(t_zp,
                                      t_sub_op.c.coadd_objects_id ==
                                      t_zp.c.coadd_objects_id)

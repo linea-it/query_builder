@@ -1,6 +1,4 @@
 import json
-from collections import OrderedDict
-import re
 
 
 def load_json(filename):

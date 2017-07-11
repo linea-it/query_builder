@@ -1,6 +1,4 @@
-import json
-from sqlalchemy import (MetaData, create_engine, Table)
-import settings
+from sqlalchemy import (MetaData, create_engine)
 
 
 """

@@ -1,5 +1,5 @@
 from sqlalchemy.sql import select
-from sqlalchemy import Table, func, select
+from sqlalchemy import Table, func
 
 from model import operation_builder
 from model import sql_operations as op
@@ -8,9 +8,9 @@ from utils.db import dal
 
 
 """
-    "An intermediate table is a table created on the database to store temporary
-data that are used to calculate the final result set. These tables can either
-be 'permanent' or 'temporary' depending on the configuration of it."
+    "An intermediate table is a table created on the database to store
+temporary data that are used to calculate the final result set. These tables
+can either be 'permanent' or 'temporary' depending on the configuration of it."
 
     This class provides the basic utilities to represent the concept about an
 intermediate table.

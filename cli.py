@@ -13,7 +13,7 @@ if __name__ == "__main__":
                 schema_output=settings.SCHEMA_OUTPUT)
 
     op_description = util.load_json(settings.OPS_DESCRIPTION_FILE)
-    G=nx.read_adjlist(settings.OPS_SEQUENCE_FILE, create_using=nx.DiGraph())
+    G = nx.read_adjlist(settings.OPS_SEQUENCE_FILE, create_using=nx.DiGraph())
 
     builder = QueryBuilder(op_description, G)
     operations = builder.get_operations()

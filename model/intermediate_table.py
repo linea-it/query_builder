@@ -1,11 +1,14 @@
 from sqlalchemy.sql import select
-from sqlalchemy import Table, func
+from sqlalchemy import Table, func, exc
+import warnings
 
 from model import operation_builder
 from model import sql_operations as op
 
 from utils.db import dal
 
+
+warnings.simplefilter("ignore", category=exc.SAWarning)
 
 """
     "An intermediate table is a table created on the database to store

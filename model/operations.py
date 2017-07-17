@@ -34,8 +34,6 @@ class IOperation():
 
 
 class GreatEqual(IOperation):
-    OPERATION = "great_equal"
-
     def get_statement(self, params, sub_operations):
         table = Table(params['db'], dal.metadata, autoload=True,
                       schema=params['schema_input'])
@@ -45,8 +43,6 @@ class GreatEqual(IOperation):
 
 
 class CombinedMaps(IOperation):
-    OPERATION = 'join'
-
     def get_statement(self, params, sub_operations):
         # load tables.
         sub_tables = []
@@ -65,8 +61,6 @@ class CombinedMaps(IOperation):
 
 
 class BadRegions(IOperation):
-    OPERATION = "bad_regions"
-
     def get_statement(self, params, sub_operations):
         table = Table(params['db'], dal.metadata, autoload=True,
                       schema=params['schema_input'])
@@ -78,8 +72,6 @@ class BadRegions(IOperation):
 
 
 class Footprint(IOperation):
-    OPERATION = 'footprint'
-
     def get_statement(self, params, sub_operations):
         inner_join = ["exposure_time", "depth_map", "mangle_map"]
         left_join = ["bad_regions"]
@@ -134,8 +126,6 @@ class Footprint(IOperation):
 
 
 class Reduction(IOperation):
-    OPERATION = 'reduction'
-
     def get_statement(self, params, sub_operations):
         # load tables.
         t_footprint = Table(sub_operations['footprint'].save_at(),
@@ -155,8 +145,6 @@ class Reduction(IOperation):
 
 
 class ZeroPoint(IOperation):
-    OPERATION = 'zero_point'
-
     BANDS = ['g', 'r', 'i', 'z', 'y']
     CORRECTION_TYPES = {
         "extinction_and_slr",
@@ -267,7 +255,6 @@ class ZeroPoint(IOperation):
 
 
 class Cuts(IOperation):
-    OPERATION = 'cuts'
     BANDS = ['g', 'r', 'i', 'z', 'y']
 
     MAG_TYPE = {}
@@ -431,8 +418,6 @@ class Cuts(IOperation):
 
 
 class Bitmask(IOperation):
-    OPERATION = 'bitmask'
-
     def get_statement(self, params, sub_operations):
         sub_op = list(sub_operations.values())[0]
 
@@ -469,8 +454,6 @@ class Bitmask(IOperation):
 
 
 class ObjectSelection(IOperation):
-    OPERATION = 'object_selection'
-
     def get_statement(self, params, sub_operations):
         sub_op = list(sub_operations.values())[0]
 
@@ -505,8 +488,6 @@ class ObjectSelection(IOperation):
 
 
 class SgSeparation(IOperation):
-    OPERATION = 'sg_separation'
-
     def get_statement(self, params, sub_operations):
         # load tables.
         t_obj_selection = Table(sub_operations['object_selection'].save_at(),
@@ -534,8 +515,6 @@ class SgSeparation(IOperation):
 
 
 class PhotoZ(IOperation):
-    OPERATION = 'photoz'
-
     def get_statement(self, params, sub_operations):
         sub_op = list(sub_operations.values())[0]
 
@@ -566,8 +545,6 @@ class PhotoZ(IOperation):
 
 
 class GalaxyProperties(IOperation):
-    OPERATION = 'galaxy_properties'
-
     def get_statement(self, params, sub_operations):
         sub_op = list(sub_operations.values())[0]
 

@@ -11,18 +11,18 @@ condition to create the apropriate class.
 
 class OperationBuilder():
     ops = {}
-    ops[op.GreatEqual.OPERATION] = op.GreatEqual()
-    ops[op.CombinedMaps.OPERATION] = op.CombinedMaps()
-    ops[op.BadRegions.OPERATION] = op.BadRegions()
-    ops[op.Footprint.OPERATION] = op.Footprint()
-    ops[op.Reduction.OPERATION] = op.Reduction()
-    ops[op.Cuts.OPERATION] = op.Cuts()
-    ops[op.Bitmask.OPERATION] = op.Bitmask()
-    ops[op.ZeroPoint.OPERATION] = op.ZeroPoint()
-    ops[op.ObjectSelection.OPERATION] = op.ObjectSelection()
-    ops[op.SgSeparation.OPERATION] = op.SgSeparation()
-    ops[op.PhotoZ.OPERATION] = op.PhotoZ()
-    ops[op.GalaxyProperties.OPERATION] = op.GalaxyProperties()
+    ops['great_equal'] = op.GreatEqual()
+    ops['join'] = op.CombinedMaps()
+    ops['bad_regions'] = op.BadRegions()
+    ops['footprint'] = op.Footprint()
+    ops['reduction'] = op.Reduction()
+    ops['cuts'] = op.Cuts()
+    ops['bitmask'] = op.Bitmask()
+    ops['zero_point'] = op.ZeroPoint()
+    ops['object_selection'] = op.ObjectSelection()
+    ops['sg_separation'] = op.SgSeparation()
+    ops['photoz'] = op.PhotoZ()
+    ops['galaxy_properties'] = op.GalaxyProperties()
 
     @staticmethod
     def create(operation_type):

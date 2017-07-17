@@ -22,6 +22,12 @@ intermediate table.
 
 class IntermediateTable():
     def __init__(self, params, sub_operations):
+        """
+        Args:
+            params - A dictionary containing parameters information.
+            sub_operations - A dictionary containing information about
+            intermediate tables.
+        """
         self._params = params
         self._sub_operations = sub_operations
 
@@ -52,9 +58,6 @@ class IntermediateTable():
             con.execute("commit")
             con.execute(op.CreateTableAs(dal.schema_output,
                                          self.save_at(), self._operation))
-
-    def access_data_table(self):
-        return self._data_table
 
     def columns_name(self):
         return self._columns

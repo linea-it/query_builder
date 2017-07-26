@@ -56,11 +56,11 @@ class WorkflowExecution():
     def _run(self, node):
         self._set_event_node_ready(node)
 
-        # remove predecessors edges
-        for _node in self.workflow.predecessors(node):
-            self.updated_workflow.remove_edge(_node, node)
-
         with self.lock:
+            # remove predecessors edges
+            for _node in self.workflow.predecessors(node):
+                self.updated_workflow.remove_edge(_node, node)
+
             nodes = nodes_no_successors(self.updated_workflow,
                                         self.workflow.predecessors(node))
             self._set_event_node_free(

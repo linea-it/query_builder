@@ -3,6 +3,9 @@ from collections import OrderedDict
 from model import workflow_builder as wb
 from model import workflow_execution as we
 from model import intermediate_table
+from model import event_builder as eb
+
+from multiprocessing import Process
 
 
 """
@@ -20,17 +23,24 @@ class QueryBuilder:
                                                    root_node=root_node)
         self.workflow = self.workflow_builder.get()
 
-        we.WorkflowExecution(self.workflow_builder, self.set_event_node_ready,
+        we.WorkflowExecution(self.workflow_builder,
+                             self.set_event_node_ready,
                              self.set_event_node_free)
 
     def set_event_node_ready(self, node):
+        # prepare data to create an intermediate table
         sub_ops_list = self.workflow.successors(node)
         sub_ops_dict = {k: self.operations[k] for k in sub_ops_list
                         if k in self.operations}
         self.op_description[node]['name'] = node
         obj_op = intermediate_table.IntermediateTable(
                 self.op_description[node], sub_ops_dict)
+
+        # save current intermediate table
         self.operations[node] = obj_op
+
+        event = eb.EventBuilder.create(self.op_description[node]['op'])
+        event.run(obj_op, self.op_description[node])
 
     def set_event_node_free(self, nodes):
         for node in nodes:

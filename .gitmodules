@@ -1,0 +1,3 @@
+[submodule "skymapper"]
+	path = skymapper
+	url = git@github.com:lucasdpn/skymapper.git

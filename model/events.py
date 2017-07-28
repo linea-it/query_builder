@@ -1,8 +1,5 @@
-from sqlalchemy.sql import select
-from sqlalchemy import Table
-
 import settings
-from utils.db import dal, select_columns
+from utils.db import select_columns
 from plots import histograms, surface
 from science import sci
 
@@ -12,61 +9,66 @@ from multiprocessing import Process
 
 class IEvent():
     def run(self, intermediate_table, params):
-        raise NotImplementedError("Implement this method")
+        pass
 
 
-class GreatEqual(IEvent):
+class Maps(IEvent):
     def run(self, intermediate_table, params):
-        data = select_columns(intermediate_table.save_at(), ['signal'])
-        cols_hist = ['ra', 'dec', 'signal']
-        data_hist = select_columns(intermediate_table.save_at(), cols_hist)
+        # plot surface 
+        cols_suf = ['ra', 'dec', 'signal']
+        data_suf = select_columns(intermediate_table.save_at(), cols_suf)
 
         p = []
-        p.append(Process(target=histograms.plot, args=[params, [s[0] for s in data]]))
-        # p.append(Process(target=surface.plot_map, args=[params, data_hist]))
+        p.append(Process(target=surface.plot_map, args=[params, data_suf]))
         [x.start() for x in p]
         [x.join() for x in p]
 
 
-class CombinedMaps(IEvent):
+class GreatEqual(Maps):
     def run(self, intermediate_table, params):
-        print(params)
+        Maps.run(self, intermediate_table, params)
+        _data = select_columns(intermediate_table.save_at(), ['signal'])
+        data = [s[0] for s in _data]
+
+        p = []
+        p.append(Process(target=histograms.plot, args=[params, data]))
+        [x.start() for x in p]
+        [x.join() for x in p]
 
 
-class BadRegions(IEvent):
-    def run(self, intermediate_table, params):
-        print(params)
+class CombinedMaps(Maps):
+    pass
 
 
-class Footprint(IEvent):
-    def run(self, intermediate_table, params):
-        print(params)
+class BadRegions(Maps):
+    pass
+
+
+class Footprint(Maps):
+    pass
 
 
 class Reduction(IEvent):
-    def run(self, intermediate_table, params):
-        print(params)
+    pass
 
 
 class ZeroPoint(IEvent):
-    def run(self, intermediate_table, params):
-        print(params)
+    pass
 
 
 class Cuts(IEvent):
-    def run(self, intermediate_table, params):
-        print(params)
+    pass
 
 
 class Bitmask(IEvent):
-    def run(self, intermediate_table, params):
-        print(params)
+    pass
 
 
 class Catalogs(IEvent):
     def run(self, intermediate_table, params):
-        cols_hist = ['ra', 'dec']
-        radec = select_columns(intermediate_table.save_at(), cols_hist)
+        # histogram and surface data
+        cols = ['ra', 'dec']
+        radec = select_columns(intermediate_table.save_at(), cols)
 
         d = collections.defaultdict(int)
         for ra, dec in radec:
@@ -77,9 +79,12 @@ class Catalogs(IEvent):
         values = [value / (3600 * pix_area) for value in d.values()]
 
         # Process to concurrent tasks.
-        p = Process(target=histograms.plot, args=[params, values])
-        p.start()
-        p.join()
+        p = []
+        p.append(Process(target=histograms.plot, args=[params, values]))
+        p.append(Process(target=surface.plot_catalog, args=[params,
+                         settings.G_PARAMS['nside'], radec]))
+        [x.start() for x in p]
+        [x.join() for x in p]
 
 
 class ObjectSelection(Catalogs):

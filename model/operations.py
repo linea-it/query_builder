@@ -508,7 +508,8 @@ class SgSeparation(IOperation):
             col = getattr(table.c, '%s' % params['ref_band'])
             _where.append(col == literal_column('0'))
 
-        stm = select([t_obj_selection.c.coadd_objects_id]).\
+        stm = select([t_obj_selection.c.coadd_objects_id, t_obj_selection.c.ra,
+                      t_obj_selection.c.dec]).\
             select_from(stm_join).where(and_(*_where))
 
         return stm
@@ -538,7 +539,8 @@ class PhotoZ(IOperation):
                                table.c.z_best <
                                literal_column(str(params['zmax']))))
 
-        stm = select([t_sub_op.c.coadd_objects_id]).\
+        stm = select([t_sub_op.c.coadd_objects_id, t_sub_op.c.ra,
+                      t_sub_op.c.dec]).\
             select_from(stm_join).where(and_(*_where))
 
         return stm
@@ -562,7 +564,8 @@ class GalaxyProperties(IOperation):
             stm_join = stm_join.join(
                 table, t_sub_op.c.coadd_objects_id == table.c.coadd_objects_id)
 
-        stm = select([t_sub_op.c.coadd_objects_id]).\
+        stm = select([t_sub_op.c.coadd_objects_id, t_sub_op.c.ra,
+                      t_sub_op.c.dec]).\
             select_from(stm_join)
 
         return stm

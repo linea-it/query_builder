@@ -1,6 +1,11 @@
+from utils import util
+
+
 # OPERATIONS_FILE = 'test/config_devel2/galaxy_properties.json'
 OPS_DESCRIPTION_FILE = 'test/ops_y1a1.json'
 OPS_SEQUENCE_FILE = 'test/operations_sequence.al'
+
+GLOBAL_PARAMETERS = 'test/ops_y1a1_global.json'
 
 SCHEMA_OUTPUT = 'tst_oracle_output'
 
@@ -49,3 +54,6 @@ DATABASES = {
         'database': 'dessci',
      }
 }
+
+# global_variables
+G_PARAMS = util.load_json(GLOBAL_PARAMETERS)

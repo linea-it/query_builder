@@ -5,7 +5,7 @@ import matplotlib.patches as mpatches
 from decimal import Decimal
 
 
-def plot_map(params, data):
+def plot(params, data):
     n, bins, patches = plt.hist(data, 50, facecolor='green', alpha=0.75)
 
     plt.xlabel('data')
@@ -33,5 +33,5 @@ def plot_map(params, data):
 
     plt.grid(True)
 
-    plt.savefig(params['name'] + '.png')
+    plt.savefig(params['name'] + '_hist.png')
     plt.clf()

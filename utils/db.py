@@ -1,3 +1,5 @@
+from sqlalchemy.sql import select
+from sqlalchemy import Table
 from sqlalchemy import (MetaData, create_engine)
 
 
@@ -33,5 +35,26 @@ class DataAccessLayer():
         else:
             db['database'] = None
         return str_con
+
+
+def create_columns_sql_format(table_obj, columns):
+    t_columns = table_obj
+    if columns is not None:
+        t_columns = list()
+        for col in columns:
+            t_columns.append(getattr(table_obj.c, col))
+    return t_columns
+
+
+def select_columns(table_name, columns=None):
+    with dal.engine.connect() as con:
+        table = Table(table_name, dal.metadata,
+                      autoload=True, schema=dal.schema_output)
+        cols = create_columns_sql_format(table, columns)
+        stm = select(cols).select_from(table)
+        print(str(stm))
+        result = con.execute(stm)
+        return result.fetchall()
+
 
 dal = DataAccessLayer()

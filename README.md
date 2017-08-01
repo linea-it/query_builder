@@ -1,6 +1,6 @@
 # `query_builder`
 
-The `query_builder` was developed to automate SQL operations based on input data and configuration provided by the user. The concept behind the `query_builder` is that a complex operation in a relational DB can be optimized by breaking it down into smaller operations. These operations can be native DB operations like `join`, bitwise operations or extended operations defined by the user. As a result of an operation, intermediate tables are created. These tables can be permanent in the database or trully temporary. The job of the query builder is to combine those intermediate tables in a predefined order to reduce the overall execution time. For instance, time consuming operations like `join` between large tables are performed at the end only when the size of the involved tables are reduced by previous operations. 
+The `query_builder` was developed to automate SQL operations based on input data and configuration provided by the user. The concept behind the `query_builder` is that a complex operation in a relational DB can be optimized by breaking it down into smaller operations. These operations can be native DB operations like `join`, bitwise operations or extended operations defined by the user. As a result of an operation, intermediate tables are created. These tables can be permanent in the database or trully temporary. The job of the query builder is to combine those intermediate tables in a predefined order to reduce the overall execution time. For instance, time consuming operations like `join` between large tables are performed at the end only when the size of the involved tables are reduced by previous operations.
 
 The main concepts of the `query_builder` implementation are:
 
@@ -27,16 +27,16 @@ exposure_time -> exposure_time_r
 **Configuration definition:**
 {
   "exposure_time"{
-    "op": "join", 
+    "op": "join",
     "permanent_table": true,
   },
   "exposure_time_i"{
-    "op": "great_equal", 
+    "op": "great_equal",
     "permanent_table": false,
 	"schema":"systematic_maps",
     "db": "y1a1_coadd_cosmos_d04_4096_exptime_i_10023575",
     "value": "0.55"
-  }, 
+  },
   "exposure_time_r"{
     "op": "great_equal",
 	"permanent_table": false,
@@ -56,13 +56,19 @@ This way, all the operations can be written overriding the method `get_statement
 
 1. Clone the project, create a virtualenv and install dependencies
 ```
+
+  sudo apt-get install python3-pip virtualenv git tcl-dev tk-dev python-tk python3-tk
+
   git clone https://github.com/lucasdpn/query_builder.git
 
   cd query_builder
-
-  virtualenv env -p python3
+  virtualenv --no-site-packages --always-copy --python python3 env
   source env/bin/activate
-  pip install -r requirements.txt
+  export CFLAGS=-fPIC
+  pip3 install --upgrade setuptools pip virtualenv
+  pip3 install --upgrade -r requirements.txt
+  git submodule init
+  git submodule update
 ```
 
 2. install postgresql

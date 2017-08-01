@@ -1,1 +1,5 @@
+networkx==1.11
+psycopg2==2.7.1
 SQLAlchemy==1.1.4
+matplotlib==2.0.2
+healpy==1.10.3
